@@ -1,0 +1,2432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JOB QUEST - 진로 탐험 부루마블</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tone.js for Web Audio Synthesis -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Nanum Gothic', sans-serif;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      background: radial-gradient(circle at center, #fbf6ea 0%, #ecdcc3 100%);
+      color: #3e2f1c;
+      overflow-x: hidden;
+    }
+
+    .font-quest {
+      font-family: 'Do Hyeon', 'Black Han Sans', sans-serif;
+    }
+    .font-jua {
+      font-family: 'Jua', sans-serif;
+    }
+
+    /* Custom parchment texture & map styling */
+    .parchment-panel {
+      background-color: #fdfaf3;
+      background-image: 
+        radial-gradient(#e0cba8 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(247, 237, 219, 0.95), rgba(240, 224, 198, 0.95));
+      background-size: 20px 20px, 100% 100%;
+      border: 3px solid #b38b59;
+      box-shadow: 0 10px 25px -5px rgba(88, 54, 19, 0.3), inset 0 0 40px rgba(184, 140, 89, 0.2);
+    }
+
+    /* 7x7 Perimeter Board Grid System */
+    .board-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-rows: repeat(7, minmax(0, 1fr));
+      gap: 5px;
+      width: 100%;
+      max-width: 820px;
+      aspect-ratio: 1 / 1;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 640px) {
+      .board-grid {
+        gap: 3px;
+      }
+    }
+
+    /* Outer Cells styling */
+    .board-cell {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px;
+      border-radius: 10px;
+      background: #fffcf5;
+      border: 2px solid #cdb28e;
+      box-shadow: 0 2px 5px rgba(107, 73, 31, 0.15);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
+    }
+
+    .board-cell:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(107, 73, 31, 0.25);
+      border-color: #8c5b23;
+      z-index: 10;
+    }
+
+    .board-cell.active-destination {
+      animation: cellPulse 1.4s infinite alternate;
+      border-color: #e11d48 !important;
+      background: #fff1f2 !important;
+      z-index: 20;
+    }
+
+    @keyframes cellPulse {
+      0% { box-shadow: 0 0 0 2px rgba(225, 29, 72, 0.4), 0 0 15px rgba(225, 29, 72, 0.5); transform: scale(1.02); }
+      100% { box-shadow: 0 0 0 5px rgba(225, 29, 72, 0.7), 0 0 22px rgba(225, 29, 72, 0.8); transform: scale(1.05); }
+    }
+
+    /* Player Pawns */
+    .pawn-container {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .player-pawn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9999px;
+      filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.45));
+      animation: pawnFloat 1.2s ease-in-out infinite alternate;
+      transition: transform 0.25s ease;
+    }
+
+    @keyframes pawnFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+
+    .pawn-hop {
+      animation: pawnHopAnim 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pawnHopAnim {
+      0% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-16px) scale(1.3); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* 3D Dice Simulation */
+    .dice-scene {
+      perspective: 600px;
+      width: 72px;
+      height: 72px;
+    }
+
+    .dice-cube {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
+      transform: rotateX(-20deg) rotateY(25deg);
+    }
+
+    .dice-face {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #e5e7eb);
+      border: 3px solid #b45309;
+      border-radius: 14px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.1), 0 4px 8px rgba(0,0,0,0.25);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 7px;
+    }
+
+    .pip {
+      width: 11px;
+      height: 11px;
+      background: #78350f;
+      border-radius: 50%;
+      align-self: center;
+      justify-self: center;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.6);
+    }
+
+    .pip-red {
+      background: #dc2626;
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Face Transforms */
+    .face-1 { transform: rotateY(0deg) translateZ(36px); }
+    .face-6 { transform: rotateY(180deg) translateZ(36px); }
+    .face-2 { transform: rotateY(90deg) translateZ(36px); }
+    .face-5 { transform: rotateY(-90deg) translateZ(36px); }
+    .face-3 { transform: rotateX(90deg) translateZ(36px); }
+    .face-4 { transform: rotateX(-90deg) translateZ(36px); }
+
+    /* Character Selection Chips */
+    .char-card-btn {
+      transition: all 0.2s ease;
+    }
+    .char-card-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+    }
+    .char-card-btn.selected {
+      transform: translateY(-2px) scale(1.06);
+      box-shadow: 0 0 0 3px #d97706, 0 6px 14px rgba(217, 119, 6, 0.4);
+      background-color: #fef3c7 !important;
+      border-color: #d97706 !important;
+    }
+    .char-card-btn-p2.selected {
+      box-shadow: 0 0 0 3px #0d9488, 0 6px 14px rgba(13, 148, 136, 0.4);
+      background-color: #ccfbf1 !important;
+      border-color: #0d9488 !important;
+    }
+
+    /* Custom Scrollbar for Modal */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f5eedc;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbb493;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 text-stone-800">
+
+  <header class="w-full max-w-5xl flex flex-wrap items-center justify-between gap-2.5 pb-2 mb-1 border-b-2 border-amber-900/20">
+    <!-- Game Logo & Title -->
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-amber-700 to-yellow-500 flex items-center justify-center text-white text-xl sm:text-2xl shadow-md border-2 border-amber-200">
+        🧭
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-quest text-xl sm:text-2xl font-black tracking-wide text-amber-950">JOB QUEST</h1>
+          <span id="gameModeHeaderBadge" class="text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full bg-amber-200/90 text-amber-900 border border-amber-400">
+            체험 모드 (6바퀴)
+          </span>
+        </div>
+        <p class="text-[11px] sm:text-xs text-stone-600 font-bold">중학생 진로 탐색 모험 부루마블</p>
+      </div>
+    </div>
+
+    <!-- Live Status: Player 1 & Player 2 Cards, Sound, Settings, End Game -->
+    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+      <!-- Player 1 Status Card -->
+      <div id="p1StatusCard" class="bg-gradient-to-r from-amber-700 to-amber-800 border-2 border-amber-400 text-amber-100 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center gap-1.5 cursor-pointer hover:brightness-110" onclick="openInventoryForPlayer(0)" title="1P 역량 가방 보기">
+        <span id="p1HeaderIcon" class="text-base sm:text-lg">🦁</span>
+        <span id="p1HeaderName" class="truncate max-w-[70px] sm:max-w-[90px]">탐험가1</span>
+        <span class="text-yellow-300 text-xs">⭐</span>
+        <span id="p1ScoreBadge" class="text-yellow-200 font-quest text-sm">0</span>
+        <span class="text-stone-300 text-xs">|</span>
+        <span class="text-xs">🎒</span>
+        <span id="p1CardBadge" class="font-quest text-amber-200 text-sm">0</span>
+      </div>
+
+      <!-- Player 2 Status Card (Visible in 2P mode) -->
+      <div id="p2StatusCard" class="hidden bg-gradient-to-r from-teal-700 to-teal-800 border-2 border-teal-400 text-teal-100 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-xs sm:text-sm font-bold shadow transition flex items-center gap-1.5 cursor-pointer hover:brightness-110" onclick="openInventoryForPlayer(1)" title="2P 역량 가방 보기">
+        <span id="p2HeaderIcon" class="text-base sm:text-lg">🐬</span>
+        <span id="p2HeaderName" class="truncate max-w-[70px] sm:max-w-[90px]">탐험가2</span>
+        <span class="text-cyan-200 text-xs">⭐</span>
+        <span id="p2ScoreBadge" class="text-cyan-100 font-quest text-sm">0</span>
+        <span class="text-stone-300 text-xs">|</span>
+        <span class="text-xs">🎒</span>
+        <span id="p2CardBadge" class="font-quest text-teal-200 text-sm">0</span>
+      </div>
+
+      <!-- Sound Toggle -->
+      <button id="soundToggleBtn" class="p-2 sm:px-2.5 sm:py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs rounded-xl border border-amber-300 shadow-sm transition flex items-center gap-1" title="효과음 켜기/끄기">
+        <span id="soundIcon">🔊</span>
+      </button>
+
+      <!-- Settings / New Game Button -->
+      <button id="openSetupBtn" class="p-2 sm:px-2.5 sm:py-1.5 bg-stone-700 hover:bg-stone-800 text-stone-100 font-bold text-xs rounded-xl border border-stone-600 shadow-sm transition flex items-center gap-1">
+        <span>⚙️</span> <span class="hidden sm:inline">설정</span>
+      </button>
+
+      <!-- End Game Button (수업용 탐험 즉시 종료 버튼) -->
+      <button id="endGameBtn" class="p-2 sm:px-2.5 sm:py-1.5 bg-rose-600 hover:bg-rose-700 text-rose-50 font-bold text-xs rounded-xl border border-rose-400 shadow-sm transition flex items-center gap-1" title="탐험을 즉시 종료하고 최종 보고서 보기">
+        <span>🏁</span> <span class="hidden sm:inline">탐험 종료</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="w-full max-w-5xl flex-1 flex flex-col items-center justify-center my-1 relative">
+    <div class="parchment-panel p-2.5 sm:p-4 rounded-3xl w-full max-w-[780px] shadow-2xl relative">
+      
+      <!-- 7x7 Board Grid -->
+      <div id="boardGrid" class="board-grid relative">
+        <!-- 24 cells will be rendered by JavaScript into perimeter coordinates -->
+
+        <!-- Center Panel (Occupies Row 2 to 6, Col 2 to 6 = 5x5 center) -->
+        <div id="centerPanel" class="col-start-2 col-span-5 row-start-2 row-span-5 flex flex-col items-center justify-between p-3 sm:p-5 rounded-2xl bg-amber-50/80 border-2 border-dashed border-amber-300/90 shadow-inner relative overflow-hidden">
+          
+          <!-- Compass Watermark in Center Background -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.07]">
+            <svg class="w-64 h-64 text-amber-950" viewBox="0 0 100 100" fill="currentColor">
+              <polygon points="50,0 60,40 100,50 60,60 50,100 40,60 0,50 40,40" />
+            </svg>
+          </div>
+
+          <!-- Active Turn Banner -->
+          <div id="turnBanner" class="w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-white shadow-md flex items-center justify-between z-10 transition-colors duration-300">
+            <div class="flex items-center gap-2">
+              <span id="activePlayerPawnIcon" class="text-xl sm:text-2xl animate-bounce">🦁</span>
+              <div>
+                <span class="text-[10px] text-amber-100 font-bold block leading-tight">현재 차례</span>
+                <span id="activePlayerNameText" class="font-quest text-sm sm:text-base font-bold text-amber-50 tracking-wide">탐험가1 님의 차례</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-amber-200 block leading-tight">완주 현황</span>
+              <span id="activePlayerTurnsLeft" class="font-quest text-xs sm:text-sm font-bold text-yellow-200">0 / 6 바퀴</span>
+            </div>
+          </div>
+
+          <!-- Interactive 3D Dice Area -->
+          <div class="flex flex-col items-center justify-center my-auto py-2 z-10">
+            <div class="dice-scene cursor-pointer" id="diceScene" onclick="triggerDiceRoll()">
+              <div class="dice-cube" id="diceCube">
+                <!-- Face 1 -->
+                <div class="dice-face face-1">
+                  <div></div><div></div><div></div>
+                  <div></div><div class="pip pip-red"></div><div></div>
+                  <div></div><div></div><div></div>
+                </div>
+                <!-- Face 2 -->
+                <div class="dice-face face-2">
+                  <div class="pip"></div><div></div><div></div>
+                  <div></div><div></div><div></div>
+                  <div></div><div></div><div class="pip"></div>
+                </div>
+                <!-- Face 3 -->
+                <div class="dice-face face-3">
+                  <div class="pip"></div><div></div><div></div>
+                  <div></div><div class="pip"></div><div></div>
+                  <div></div><div></div><div class="pip"></div>
+                </div>
+                <!-- Face 4 -->
+                <div class="dice-face face-4">
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                  <div></div><div></div><div></div>
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                </div>
+                <!-- Face 5 -->
+                <div class="dice-face face-5">
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                  <div></div><div class="pip"></div><div></div>
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                </div>
+                <!-- Face 6 -->
+                <div class="dice-face face-6">
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                  <div class="pip"></div><div></div><div class="pip"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dice Result Value Label -->
+            <div class="mt-2 text-center">
+              <span id="diceResultLabel" class="text-xs sm:text-sm font-extrabold text-amber-900 bg-amber-200/80 px-3 py-1 rounded-full border border-amber-300 shadow-sm">
+                주사위를 굴려주세요! 🎲
+              </span>
+            </div>
+          </div>
+
+          <!-- Big Roll Dice Button (Cleaned up: No bulky description card underneath!) -->
+          <div class="w-full max-w-sm flex flex-col items-center gap-1.5 z-10 pb-1">
+            <button id="rollDiceBtn" class="w-full py-3 sm:py-3.5 px-6 rounded-2xl font-quest text-lg sm:text-xl font-black text-amber-950 bg-gradient-to-b from-yellow-300 via-amber-400 to-amber-500 border-2 border-amber-200 shadow-lg hover:shadow-xl hover:brightness-105 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2">
+              <span class="text-2xl">🎲</span>
+              <span>주사위 굴리기</span>
+            </button>
+            <p id="rollStatusTip" class="text-[11px] sm:text-xs text-stone-600 font-bold tracking-tight">
+              버튼을 누르거나 스페이스바(Space)를 눌러 말을 전진시키세요
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="activityModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+    <div class="bg-gradient-to-b from-amber-50 via-white to-amber-50 border-4 border-amber-600 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div id="modalHeader" class="p-3.5 sm:p-4 bg-gradient-to-r from-amber-700 to-amber-800 text-white flex items-center justify-between border-b-2 border-amber-600">
+        <div class="flex items-center gap-2">
+          <span id="modalCategoryBadge" class="text-xs font-black px-2.5 py-0.5 rounded-full bg-amber-400 text-amber-950 font-quest">
+            직업탐험
+          </span>
+          <h3 id="modalTitle" class="font-quest text-base sm:text-lg font-bold truncate max-w-[240px]">
+            활동 타이틀
+          </h3>
+        </div>
+        <span id="modalExpBonusBadge" class="text-xs font-bold text-yellow-300 bg-black/30 px-2 py-0.5 rounded-full">
+          +2점 ⭐
+        </span>
+      </div>
+
+      <!-- Modal Body (Dynamic Activity Content) -->
+      <div id="modalBody" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3 text-sm text-stone-800">
+        <!-- Content injected by JS -->
+      </div>
+
+      <!-- Modal Footer (Complete / Action Buttons) -->
+      <div id="modalFooter" class="p-3 sm:p-4 bg-amber-100/70 border-t-2 border-amber-300 flex items-center justify-end gap-2">
+        <!-- Buttons injected by JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <div id="setupModal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5">
+    <div class="parchment-panel rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[94vh]">
+      
+      <div class="p-3.5 sm:p-4 bg-gradient-to-r from-amber-800 to-amber-900 text-amber-100 flex items-center justify-between border-b-2 border-amber-600">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🗺️</span>
+          <div>
+            <h3 class="font-quest text-lg sm:text-xl font-bold text-white">JOB QUEST 진로 탐험 준비</h3>
+            <span class="text-[11px] text-amber-200">탐험 인원, 별명, 캐릭터 말을 선택하세요</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 text-xs sm:text-sm">
+        
+        <!-- Player Count Selection -->
+        <div>
+          <label class="font-bold text-amber-950 block mb-1.5">👥 참가 인원 선택:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="opt1Player" type="button" class="py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-100/90 font-bold text-amber-950 shadow-sm transition text-center">
+              👤 1인 탐험 (혼자 하기)
+            </button>
+            <button id="opt2Player" type="button" class="py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center">
+              👥 2인 탐험 (친구와 함께)
+            </button>
+          </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div>
+          <label class="font-bold text-amber-950 block mb-1.5">⏱️ 탐험 모드 (24칸 완주 바퀴 수):</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="optTrialMode" type="button" class="py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-100/90 font-bold text-amber-950 shadow-sm transition text-center">
+              ⚡ 체험 모드 (6바퀴 완주)
+            </button>
+            <button id="optGameMode" type="button" class="py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center">
+              🎯 정규 모드 (10바퀴 완주)
+            </button>
+          </div>
+        </div>
+
+        <!-- Privacy Guidance Notice Box -->
+        <div class="bg-amber-100/90 border-2 border-amber-300 rounded-xl p-3 text-xs text-amber-950 flex items-start gap-2 leading-relaxed shadow-sm">
+          <span class="text-lg">🔒</span>
+          <div>
+            <span class="font-black text-amber-900">실제 이름 대신 '멋진 별명'을 사용해 주세요!</span><br>
+            개인정보 보호와 즐거운 몰입을 위해 친구들과 부르고 싶은 진로 별명을 만들어보세요.<br>
+            <span class="text-stone-600 text-[11px]">예: 미래로봇왕, 데이터탐정, 지구지킴이, AI꿈나무, 스마트파머 등</span>
+          </div>
+        </div>
+
+        <!-- Player 1 Nickname & Character Selection -->
+        <div class="bg-amber-50/80 p-3 rounded-2xl border-2 border-amber-300">
+          <div class="flex items-center justify-between gap-1 mb-1.5 text-xs font-bold text-amber-900">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+              <span>플레이어 1 설정</span>
+            </div>
+            <span id="p1CharBadge" class="text-[11px] font-bold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full">
+              선택: 🦁 열정 사자
+            </span>
+          </div>
+          <input id="setupP1Nick" type="text" maxlength="8" class="w-full p-2.5 rounded-xl border-2 border-amber-400 bg-white text-stone-800 text-sm font-bold focus:outline-none focus:border-amber-600 mb-2" placeholder="별명 입력 (기본: 탐험가1)" value="탐험가1">
+
+          <div>
+            <div class="text-[11px] font-extrabold text-amber-950 mb-1 flex items-center gap-1">
+              <span>🎭</span> <span>나만의 캐릭터 말 고르기:</span>
+            </div>
+            <div id="p1CharGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Player 2 Nickname & Character Selection (Shown if 2 players) -->
+        <div id="setupP2Container" class="hidden bg-teal-50/80 p-3 rounded-2xl border-2 border-teal-300">
+          <div class="flex items-center justify-between gap-1 mb-1.5 text-xs font-bold text-teal-900">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-teal-500 inline-block"></span>
+              <span>플레이어 2 설정</span>
+            </div>
+            <span id="p2CharBadge" class="text-[11px] font-bold text-teal-800 bg-teal-200/80 px-2 py-0.5 rounded-full">
+              선택: 🐬 아이디어 돌고래
+            </span>
+          </div>
+          <input id="setupP2Nick" type="text" maxlength="8" class="w-full p-2.5 rounded-xl border-2 border-teal-400 bg-white text-stone-800 text-sm font-bold focus:outline-none focus:border-teal-600 mb-2" placeholder="별명 입력 (기본: 탐험가2)" value="탐험가2">
+
+          <div>
+            <div class="text-[11px] font-extrabold text-teal-950 mb-1 flex items-center gap-1">
+              <span>🎭</span> <span>나만의 캐릭터 말 고르기:</span>
+            </div>
+            <div id="p2CharGrid" class="grid grid-cols-3 sm:grid-cols-6 gap-1.5"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="p-3 sm:p-4 bg-amber-100/90 border-t-2 border-amber-300 flex items-center justify-end gap-2">
+        <button id="startAdventureBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-quest text-base font-bold shadow-lg transition">
+          🚀 진로 탐험 시작하기!
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Inventory Modal (🎒 역량 가방) -->
+  <div id="inventoryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+    <div class="bg-amber-50 border-4 border-amber-600 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      
+      <div class="p-3.5 bg-gradient-to-r from-amber-700 to-amber-800 text-white flex items-center justify-between border-b-2 border-amber-600">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">🎒</span>
+          <h3 class="font-quest text-base sm:text-lg font-bold">나의 역량 가방 & 탐험 기록</h3>
+        </div>
+        <button id="closeInventoryBtn" class="text-white hover:text-amber-200 text-xl font-bold p-1 leading-none">✕</button>
+      </div>
+
+      <!-- Player Selector Tab for 2 Players -->
+      <div id="inventoryPlayerTabs" class="hidden grid grid-cols-2 p-1.5 bg-amber-200/70 border-b border-amber-300 gap-1">
+        <button id="invTabP1" class="py-1.5 rounded-lg text-xs font-bold bg-amber-700 text-white transition text-center"></button>
+        <button id="invTabP2" class="py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 transition text-center"></button>
+      </div>
+
+      <div id="inventoryContent" class="p-4 overflow-y-auto flex-1 space-y-3.5 text-xs sm:text-sm">
+        <!-- Injected by JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Final Career Exploration Report Modal -->
+  <div id="reportModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-5 hidden">
+    <div class="parchment-panel rounded-3xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <div class="p-4 bg-gradient-to-r from-amber-800 via-amber-700 to-yellow-600 text-white flex items-center justify-between border-b-2 border-amber-600">
+        <div class="flex items-center gap-2.5">
+          <span class="text-3xl">📜</span>
+          <div>
+            <h3 class="font-quest text-lg sm:text-xl font-bold">JOB QUEST 진로 탐험 보고서</h3>
+            <span class="text-xs text-yellow-200">오늘의 멋진 탐험을 모두 완료했습니다!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Tabs in Report Modal (2 Players) -->
+      <div id="reportPlayerTabs" class="hidden grid grid-cols-2 p-2 bg-amber-200/80 border-b border-amber-300 gap-1.5">
+        <button id="reportTabP1" class="py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-700 text-white transition text-center shadow-sm"></button>
+        <button id="reportTabP2" class="py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-stone-700 transition text-center hover:bg-amber-100 border border-amber-300"></button>
+      </div>
+
+      <div id="reportContent" class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4 text-xs sm:text-sm">
+        <!-- Injected by JS -->
+      </div>
+
+      <div class="p-3 sm:p-4 bg-amber-100/90 border-t-2 border-amber-300 flex items-center justify-center">
+        <button id="restartGameBtn" class="py-2.5 px-6 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-quest text-sm font-bold shadow-md transition">
+          🔄 새로운 진로 탐험 시작하기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Message -->
+  <div id="toastMessage" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-stone-900/90 text-yellow-300 px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold shadow-xl border border-yellow-500/40 z-50 pointer-events-none opacity-0 transition-opacity duration-300 text-center">
+    메시지
+  </div>
+
+  <script>
+    /* ============================================================
+       JOB QUEST - Core Data & Board Configuration (24 Cells)
+       ============================================================ */
+
+    // 6 Core Future Competencies
+    const COMPETENCY_CARDS = [
+      { id: 'comm', name: '의사소통', icon: '💬', color: 'bg-blue-50 border-blue-300 text-blue-800', desc: '자신의 생각을 명확히 표현하고 타인의 의견을 경청하는 힘' },
+      { id: 'collab', name: '협업', icon: '🤝', color: 'bg-emerald-50 border-emerald-300 text-emerald-800', desc: '친구들과 서로 배려하고 역할을 나누어 함께 성과를 내는 힘' },
+      { id: 'creat', name: '창의성', icon: '💡', color: 'bg-yellow-50 border-yellow-300 text-yellow-800', desc: '새로운 시각으로 독창적인 아이디어를 자유롭게 발산하는 힘' },
+      { id: 'solve', name: '문제해결', icon: '🧩', color: 'bg-purple-50 border-purple-300 text-purple-800', desc: '어려운 상황을 단계별로 분석하여 합리적 대안을 찾는 힘' },
+      { id: 'resp', name: '책임감', icon: '🛡️', color: 'bg-rose-50 border-rose-300 text-rose-800', desc: '자신에게 주어진 약속과 임무를 끝까지 성실히 완수하는 힘' },
+      { id: 'digital', name: '디지털 활용', icon: '💻', color: 'bg-teal-50 border-teal-300 text-teal-800', desc: '스마트 소프트웨어와 인공지능 도구를 유용하게 다루는 힘' }
+    ];
+
+    // 6 Friendly Character Pawn Presets
+    const CHARACTER_PRESETS = [
+      { id: 'lion', icon: '🦁', name: '열정 사자', desc: '용기와 리더십' },
+      { id: 'dolphin', icon: '🐬', name: '아이디어 돌고래', desc: '창의와 유연성' },
+      { id: 'robot', icon: '🤖', name: '미래 AI봇', desc: '논리와 디지털' },
+      { id: 'fox', icon: '🦊', name: '지혜 여우', desc: '전략과 문제해결' },
+      { id: 'owl', icon: '🦉', name: '탐구 부엉이', desc: '지식과 멘토링' },
+      { id: 'cat', icon: '🚀', name: '도전 우주냥', desc: '호기심과 모험' }
+    ];
+
+    let p1SelectedChar = CHARACTER_PRESETS[0];
+    let p2SelectedChar = CHARACTER_PRESETS[1];
+
+    /* 24 Cells Definition (Strictly adhering to all user requirements) */
+    const TILES_DATA = [
+      {
+        id: 0,
+        type: 'start',
+        title: '출발 캠프',
+        shortTitle: '시작',
+        icon: '⛺',
+        badge: '시작',
+        badgeColor: 'bg-amber-500 text-amber-950',
+        borderColor: 'border-amber-500',
+        bgGradient: 'from-amber-100 to-amber-200',
+        desc: '탐험의 출발점! 주사위를 굴려 미래 진로 탐험을 시작하세요.'
+      },
+      {
+        id: 1,
+        type: 'job',
+        title: '데이터 분석가',
+        shortTitle: '데이터 분석가',
+        icon: '📊',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '데이터 분석가 (Data Analyst)',
+          duties: '디지털 세상에 흩어진 수많은 정보와 숫자를 수집·가공하여, 보이지 않는 규칙과 트렌드를 발견하고 의사결정을 돕습니다.',
+          workplace: 'IT 정보기업, 금융사, 병원 연구소, 전자상거래 쇼핑몰 등',
+          abilities: '수학적 논리력, 통계 소프트웨어 및 코딩 활용 능력, 호기심과 끈기',
+          impact: '사람들이 더 편리한 맞춤형 서비스를 이용하게 돕고, 기업과 정부의 합리적인 결정을 이끕니다.'
+        }
+      },
+      {
+        id: 2,
+        type: 'self',
+        title: '나를 알아보기 1',
+        shortTitle: '나의 장점',
+        icon: '🌱',
+        badge: '나를 알기',
+        badgeColor: 'bg-emerald-600 text-white',
+        borderColor: 'border-emerald-400',
+        bgGradient: 'from-emerald-50 to-emerald-100',
+        question: '친구들이 말하는 나의 장점은 무엇인가요?',
+        hint: '예: 이야기를 잘 들어준다, 약속을 잘 지킨다, 손재주가 좋다, 그림을 잘 그린다 등'
+      },
+      {
+        id: 3,
+        type: 'comp',
+        title: '역량 획득',
+        shortTitle: '역량 보물',
+        icon: '💎',
+        badge: '역량 획득',
+        badgeColor: 'bg-purple-600 text-white',
+        borderColor: 'border-purple-400',
+        bgGradient: 'from-purple-50 to-purple-100',
+        desc: '모험에 꼭 필요한 미래 핵심 역량 카드를 무작위로 1장 획득합니다.'
+      },
+      {
+        id: 4,
+        type: 'scenario',
+        title: '직업 상황 해결 1',
+        shortTitle: '롤러코스터 대기',
+        icon: '🎢',
+        badge: '상황 해결',
+        badgeColor: 'bg-orange-600 text-white',
+        borderColor: 'border-orange-400',
+        bgGradient: 'from-orange-50 to-orange-100',
+        jobRole: '데이터 분석가',
+        scenario: '놀이공원의 인기 롤러코스터 대기 시간이 2시간이나 걸려 손님들의 불만이 쏟아집니다. 대기 시간을 줄이기 위해 데이터 분석가로서 어떤 정보를 조사하고 분석하겠습니까?',
+        hint: '손님이 몰리는 요일 및 시간대, 날씨에 따른 방문자 수, 탑승 회전 속도, 모바일 예약 데이터 등'
+      },
+      {
+        id: 5,
+        type: 'chance',
+        title: '진로 찬스',
+        shortTitle: '진로 찬스',
+        icon: '⭐',
+        badge: '찬스',
+        badgeColor: 'bg-yellow-500 text-yellow-950',
+        borderColor: 'border-yellow-400',
+        bgGradient: 'from-yellow-50 to-yellow-100',
+        desc: '진로 탐험 중 행운의 황금 기회를 만났습니다!'
+      },
+      {
+        id: 6,
+        type: 'job',
+        title: '정보보안 전문가',
+        shortTitle: '정보보안가',
+        icon: '🛡️',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '정보보안 전문가 (Information Security Specialist)',
+          duties: '해커의 불법 침입이나 바이러스로부터 개인정보, 은행 계좌, 국가 기반 통신망 시스템을 철통같이 방어합니다.',
+          workplace: '사이버 보안 기업, 금융기관 보안센터, 국가정보원, 포털 사이트 등',
+          abilities: '네트워크와 프로그래밍 지식, 책임감과 도덕성, 침착한 문제 해결력',
+          impact: '디지털 사회에서 모든 사람의 소중한 개인정보와 재산이 안전하게 보호받도록 지켜줍니다.'
+        }
+      },
+      {
+        id: 7,
+        type: 'self',
+        title: '나를 알아보기 2',
+        shortTitle: '좋아하는 과목',
+        icon: '📚',
+        badge: '나를 알기',
+        badgeColor: 'bg-emerald-600 text-white',
+        borderColor: 'border-emerald-400',
+        bgGradient: 'from-emerald-50 to-emerald-100',
+        question: '좋아하는 학교 과목과 그 이유는 무엇인가요?',
+        hint: '예: 과학(실험이 신기해서), 미술(만들기를 좋아해서), 체육(땀 흘리는 게 즐거워서) 등'
+      },
+      {
+        id: 8,
+        type: 'crisis',
+        title: '진로 위기 1',
+        shortTitle: '진로 위기',
+        icon: '⚠️',
+        badge: '진로 위기',
+        badgeColor: 'bg-rose-600 text-white',
+        borderColor: 'border-rose-400',
+        bgGradient: 'from-rose-50 to-rose-100',
+        situation: '열심히 준비한 수업 발표 직전, USB 파일이 열리지 않는 오류가 발생했습니다!',
+        guidance: '당황하지 않고 위기를 침착하게 극복할 수 있는 나만의 대안을 짧게 적어보세요.'
+      },
+      {
+        id: 9,
+        type: 'job',
+        title: '기계공학자',
+        shortTitle: '기계공학자',
+        icon: '⚙️',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '기계공학자 (Mechanical Engineer)',
+          duties: '자동화 생산 기계, 자동차, 비행기, 난방·냉방 장치 등 힘과 에너지를 움직임으로 바꾸는 모든 기계 장치를 설계하고 제작합니다.',
+          workplace: '제조업 기업, 자동차 연구소, 항공우주 산업체, 중공업 공장 등',
+          abilities: '물리와 수학적 감각, 3D 설계(CAD) 능력, 창의적인 구조 설계력',
+          impact: '사람들이 손쉽고 편리하게 이동하고 안전한 제품을 사용하도록 현대 문명의 토대를 만듭니다.'
+        }
+      },
+      {
+        id: 10,
+        type: 'scenario',
+        title: '직업 상황 해결 2',
+        shortTitle: '조용한 카트',
+        icon: '🛒',
+        badge: '상황 해결',
+        badgeColor: 'bg-orange-600 text-white',
+        borderColor: 'border-orange-400',
+        bgGradient: 'from-orange-50 to-orange-100',
+        jobRole: '기계공학자',
+        scenario: '도서관에서 무거운 책을 나르는 바퀴 달린 카트가 덜컹거리며 큰 소리를 내 공부하는 사람들에게 방해가 됩니다. 소음을 줄이고 부드럽게 굴러가도록 바퀴를 어떻게 개선하겠습니까?',
+        hint: '바퀴 재질을 푹신한 충격흡수 고무나 우레탄으로 교체, 서스펜션 스프링 부착, 부드러운 볼베어링 윤활 등'
+      },
+      {
+        id: 11,
+        type: 'comp',
+        title: '역량 획득',
+        shortTitle: '역량 보물',
+        icon: '💎',
+        badge: '역량 획득',
+        badgeColor: 'bg-purple-600 text-white',
+        borderColor: 'border-purple-400',
+        bgGradient: 'from-purple-50 to-purple-100',
+        desc: '모험에 꼭 필요한 미래 핵심 역량 카드를 무작위로 1장 획득합니다.'
+      },
+      {
+        id: 12,
+        type: 'fusion',
+        title: '직업 융합',
+        shortTitle: '직업 융합',
+        icon: '🧪',
+        badge: '직업 융합',
+        badgeColor: 'bg-fuchsia-600 text-white',
+        borderColor: 'border-fuchsia-400',
+        bgGradient: 'from-fuchsia-50 to-fuchsia-100',
+        desc: "'내가 좋아하는 것 + 직업' 또는 '서로 다른 직업 2개'를 합쳐 나만의 미래 직업을 발명해보세요!"
+      },
+      {
+        id: 13,
+        type: 'job',
+        title: '로봇공학자',
+        shortTitle: '로봇공학자',
+        icon: '🤖',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '로봇공학자 (Robotics Engineer)',
+          duties: '사람을 돕는 서비스 로봇, 수술용 의료 로봇, 재난 구조 로봇, 공장 자동화 로봇을 기획·설계·프로그래밍합니다.',
+          workplace: '로봇 전문 제조사, 전자 연구소, 인공지능 연구원, 대학 연구실 등',
+          abilities: '기계·전자·소프트웨어의 융합 지식, 프로그래밍 능력, 협업 태도',
+          impact: '위험하거나 힘든 일을 로봇이 대신하게 하여 사람들의 생명을 지키고 일상을 풍요롭게 만듭니다.'
+        }
+      },
+      {
+        id: 14,
+        type: 'self',
+        title: '나를 알아보기 3',
+        shortTitle: '직업 가치관',
+        icon: '🧭',
+        badge: '나를 알기',
+        badgeColor: 'bg-emerald-600 text-white',
+        borderColor: 'border-emerald-400',
+        bgGradient: 'from-emerald-50 to-emerald-100',
+        question: '직업을 고를 때 가장 중요하게 생각하는 것은 무엇인가요?',
+        hint: '예: 흥미와 재미, 보람과 타인 돕기, 안정성, 많은 수입, 자율성과 자유 등'
+      },
+      {
+        id: 15,
+        type: 'chance',
+        title: '진로 찬스',
+        shortTitle: '진로 찬스',
+        icon: '⭐',
+        badge: '찬스',
+        badgeColor: 'bg-yellow-500 text-yellow-950',
+        borderColor: 'border-yellow-400',
+        bgGradient: 'from-yellow-50 to-yellow-100',
+        desc: '진로 탐험 중 행운의 황금 기회를 만났습니다!'
+      },
+      {
+        id: 16,
+        type: 'scenario',
+        title: '직업 상황 해결 3',
+        shortTitle: '폭염 온실',
+        icon: '🍅',
+        badge: '상황 해결',
+        badgeColor: 'bg-orange-600 text-white',
+        borderColor: 'border-orange-400',
+        bgGradient: 'from-orange-50 to-orange-100',
+        jobRole: '스마트농업 전문가',
+        scenario: '스마트 온실에 갑작스러운 한여름 폭염이 닥쳐 재배 중인 방울토마토가 시들 위험에 처했습니다. 스마트폰 원격 제어로 온실 온도를 낮추기 위해 어떤 설비를 즉시 가동하겠습니까?',
+        hint: '천장 자동 차광막 펼치기, 미세 안개 분사기 가동, 환기팬 최대 회전, 지하수 순환 냉각 장치 등'
+      },
+      {
+        id: 17,
+        type: 'job',
+        title: '교사',
+        shortTitle: '교사',
+        icon: '👩‍🏫',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '교사 (Teacher / Educator)',
+          duties: '학생들의 지적·인성적 성장을 지도하고, 즐거운 수업을 연구하며 꿈과 적성을 찾는 진로 상담을 제공합니다.',
+          workplace: '초·중·고등학교, 특수학교, 교육청 및 교육 연구기관 등',
+          abilities: '공감 능력, 명확한 의사소통, 학생들을 사랑하는 교육관과 인내심',
+          impact: '미래 사회를 이끌어갈 학생들의 잠재력을 꽃피우고 바른 민주시민으로 성장하도록 돕습니다.'
+        }
+      },
+      {
+        id: 18,
+        type: 'crisis',
+        title: '진로 위기 2',
+        shortTitle: '진로 위기',
+        icon: '⚡',
+        badge: '진로 위기',
+        badgeColor: 'bg-rose-600 text-white',
+        borderColor: 'border-rose-400',
+        bgGradient: 'from-rose-50 to-rose-100',
+        situation: '정말 열심히 준비한 시험이나 대회에서 기대보다 아쉬운 결과를 받았습니다.',
+        guidance: '실패에 좌절하지 않고 다음 도전을 위해 무엇을 배우고 새롭게 시작할지 적어보세요.'
+      },
+      {
+        id: 19,
+        type: 'comp',
+        title: '역량 획득',
+        shortTitle: '역량 보물',
+        icon: '💎',
+        badge: '역량 획득',
+        badgeColor: 'bg-purple-600 text-white',
+        borderColor: 'border-purple-400',
+        bgGradient: 'from-purple-50 to-purple-100',
+        desc: '모험에 꼭 필요한 미래 핵심 역량 카드를 무작위로 1장 획득합니다.'
+      },
+      {
+        id: 20,
+        type: 'scenario',
+        title: '직업 상황 해결 4',
+        shortTitle: '제설 로봇',
+        icon: '❄️',
+        badge: '상황 해결',
+        badgeColor: 'bg-orange-600 text-white',
+        borderColor: 'border-orange-400',
+        bgGradient: 'from-orange-50 to-orange-100',
+        jobRole: '로봇공학자',
+        scenario: '눈이 많이 오는 날, 사람이 미끄러져 다치지 않도록 아파트 인도나 골목길의 눈을 치우는 로봇을 만들려고 합니다. 추운 날씨와 미끄러운 얼음길에서도 로봇이 미끄러지지 않고 눈을 잘 밀어내려면 어떤 장치가 필요할까요?',
+        hint: '무한궤도(캐터필러) 바퀴 장착, 바닥 열선 녹임 장치, 스노우 블레이드 각도 조절기, 미끄럼 방지 센서 등'
+      },
+      {
+        id: 21,
+        type: 'self',
+        title: '나를 알아보기 4',
+        shortTitle: '협동 스타일',
+        icon: '🧩',
+        badge: '나를 알기',
+        badgeColor: 'bg-emerald-600 text-white',
+        borderColor: 'border-emerald-400',
+        bgGradient: 'from-emerald-50 to-emerald-100',
+        question: '혼자 하는 활동과 함께하는 활동 중 어느 쪽이 더 편한가요?',
+        hint: '예: 혼자 집중하는 것이 편하다(조용한 생각), 친구들과 함께하는 것이 즐겁다(아이디어 공유) 등'
+      },
+      {
+        id: 22,
+        type: 'job',
+        title: '스마트농업 전문가',
+        shortTitle: '스마트농업가',
+        icon: '🌱',
+        badge: '직업탐험',
+        badgeColor: 'bg-indigo-600 text-white',
+        borderColor: 'border-indigo-400',
+        bgGradient: 'from-indigo-50 to-indigo-100',
+        details: {
+          jobName: '스마트농업 전문가 (Smart Farming Specialist)',
+          duties: '사물인터넷(IoT) 센서, 인공지능, 드론, 로봇을 농업에 결합하여 기후 변화에 영향받지 않고 최적의 작물을 재배합니다.',
+          workplace: '지능형 스마트팜 온실, 농업기술원, 애그리테크(AgTech) 바이오 연구소 등',
+          abilities: '농작물 생육 지식, 센서 및 데이터 제어 이해도, 환경 문제에 대한 관심',
+          impact: '안전하고 신선한 먹거리를 친환경적으로 생산하고 인류의 식량 부족 위기를 해결합니다.'
+        }
+      },
+      {
+        id: 23,
+        type: 'chance',
+        title: '진로 찬스',
+        shortTitle: '진로 찬스',
+        icon: '⭐',
+        badge: '찬스',
+        badgeColor: 'bg-yellow-500 text-yellow-950',
+        borderColor: 'border-yellow-400',
+        bgGradient: 'from-yellow-50 to-yellow-100',
+        desc: '진로 탐험 중 행운의 황금 기회를 만났습니다!'
+      }
+    ];
+
+    // Standard Job Duties Mapping for Report
+    const JOB_DEFAULT_DUTIES = {
+      '데이터 분석가': '수많은 데이터를 분석하고 유용한 정보를 예측',
+      '정보보안 전문가': '해킹과 바이러스로부터 소중한 정보를 철저히 보호',
+      '기계공학자': '편리하고 안전한 기계와 이동수단을 설계',
+      '로봇공학자': '사람을 돕고 위험한 일을 대신하는 로봇을 개발',
+      '교사': '학생들의 꿈과 잠재력을 키우고 즐겁게 지도',
+      '스마트농업 전문가': '첨단 기술을 활용해 신선한 미래 먹거리를 친환경 생산'
+    };
+
+    // Standard Report Options
+    const REASON_OPTIONS = [
+      '하는 일이 재미있어 보여서',
+      '내가 좋아하는 것과 연결되어서',
+      '필요한 능력이 흥미로워서',
+      '사람이나 사회에 주는 도움이 마음에 들어서',
+      '새롭게 알게 된 직업이라서'
+    ];
+
+    const LEARN_OPTIONS = [
+      '실제로 어떤 일을 하는지',
+      '어떤 과목과 관련 있는지',
+      '어떤 전공이나 학과가 있는지',
+      '어떤 능력이 필요한지',
+      '하루 일과는 어떤지',
+      '미래에 어떻게 달라질지'
+    ];
+
+    let gameConfig = {
+      playerCount: 1,
+      mode: 'trial', // 'trial' (6 laps) or 'game' (10 laps)
+      maxLaps: 6
+    };
+
+    let players = [
+      {
+        id: 0,
+        name: '탐험가1',
+        icon: '🦁',
+        charName: '열정 사자',
+        charDesc: '용기와 리더십',
+        position: 0,
+        score: 0,
+        bag: [],
+        metJobs: new Set(),
+        lapsCompleted: 0,
+        diceRollsCount: 0
+      },
+      {
+        id: 1,
+        name: '탐험가2',
+        icon: '🐬',
+        charName: '아이디어 돌고래',
+        charDesc: '창의와 유연성',
+        position: 0,
+        score: 0,
+        bag: [],
+        metJobs: new Set(),
+        lapsCompleted: 0,
+        diceRollsCount: 0
+      }
+    ];
+
+    let playerReports = [
+      {
+        selectedJob: '데이터 분석가',
+        isCustomJob: false,
+        customJobName: '',
+        jobDuty: JOB_DEFAULT_DUTIES['데이터 분석가'],
+        selectedReason: REASON_OPTIONS[0],
+        isCustomReason: false,
+        customReason: '',
+        selectedLearn: LEARN_OPTIONS[0],
+        isCustomLearn: false,
+        customLearn: ''
+      },
+      {
+        selectedJob: '데이터 분석가',
+        isCustomJob: false,
+        customJobName: '',
+        jobDuty: JOB_DEFAULT_DUTIES['데이터 분석가'],
+        selectedReason: REASON_OPTIONS[0],
+        isCustomReason: false,
+        customReason: '',
+        selectedLearn: LEARN_OPTIONS[0],
+        isCustomLearn: false,
+        customLearn: ''
+      }
+    ];
+
+    let activePlayerIdx = 0;
+    let isMoving = false;
+    let soundEnabled = true;
+    let inventoryViewingPlayerIdx = 0;
+    let currentReportPlayerIdx = 0;
+    let scenarioTimerInterval = null;
+    let scenarioSecondsLeft = 30;
+
+    // Web Audio Synthesis (Tone.js Safe Player)
+    let synth = null;
+    function initSound() {
+      try {
+        if (!synth && window.Tone) {
+          synth = new Tone.PolySynth(Tone.Synth).toDestination();
+          synth.volume.value = -8;
+        }
+        if (window.Tone && Tone.context.state !== 'running') {
+          Tone.start();
+        }
+      } catch (e) {
+        console.warn('Audio init warning:', e);
+      }
+    }
+
+    function playToneSound(type) {
+      if (!soundEnabled || !synth) return;
+      try {
+        const now = Tone.now();
+        if (type === 'hop') {
+          synth.triggerAttackRelease('C5', '16n', now);
+        } else if (type === 'roll') {
+          synth.triggerAttackRelease('G4', '16n', now);
+        } else if (type === 'land') {
+          synth.triggerAttackRelease(['E5', 'G5'], '8n', now);
+        } else if (type === 'success') {
+          synth.triggerAttackRelease(['C5', 'E5', 'G5', 'C6'], '6n', now);
+        } else if (type === 'bonus') {
+          synth.triggerAttackRelease(['F5', 'A5', 'C6'], '8n', now);
+        } else if (type === 'timer') {
+          synth.triggerAttackRelease('A5', '8n', now);
+        }
+      } catch (e) {}
+    }
+
+    const boardGrid = document.getElementById('boardGrid');
+    const rollDiceBtn = document.getElementById('rollDiceBtn');
+    const diceCube = document.getElementById('diceCube');
+    const diceResultLabel = document.getElementById('diceResultLabel');
+    const rollStatusTip = document.getElementById('rollStatusTip');
+
+    function getCellGridPosition(index) {
+      if (index >= 0 && index <= 6) {
+        return { row: 1, col: index + 1 };
+      } else if (index >= 7 && index <= 11) {
+        return { row: index - 5, col: 7 };
+      } else if (index >= 12 && index <= 18) {
+        return { row: 7, col: 7 - (index - 12) };
+      } else {
+        return { row: 7 - (index - 18), col: 1 };
+      }
+    }
+
+    function buildBoard() {
+      document.querySelectorAll('.board-cell').forEach(el => el.remove());
+
+      TILES_DATA.forEach((tile, idx) => {
+        const cell = document.createElement('div');
+        const pos = getCellGridPosition(idx);
+
+        cell.className = `board-cell bg-gradient-to-b ${tile.bgGradient} ${tile.borderColor}`;
+        cell.id = `cell-${idx}`;
+        cell.style.gridRowStart = pos.row;
+        cell.style.gridColumnStart = pos.col;
+
+        cell.innerHTML = `
+          <div class="w-full flex items-center justify-between px-1 pointer-events-none">
+            <span class="text-[9px] sm:text-[10px] font-quest px-1 py-0.2 rounded font-black ${tile.badgeColor} leading-tight">
+              ${tile.badge}
+            </span>
+            <span class="text-[9px] sm:text-[10px] text-stone-500 font-bold">#${idx}</span>
+          </div>
+
+          <div class="my-auto flex flex-col items-center justify-center pointer-events-none py-0.5">
+            <span class="text-2xl sm:text-3xl drop-shadow leading-none">${tile.icon}</span>
+          </div>
+
+          <div class="pawn-container" id="pawn-container-${idx}"></div>
+        `;
+
+        cell.onclick = () => {
+          if (!isMoving) {
+            openActivityModal(idx, false);
+          }
+        };
+
+        boardGrid.appendChild(cell);
+      });
+
+      renderPawns();
+      updateTurnUI();
+    }
+
+    function renderPawns() {
+      document.querySelectorAll('.pawn-container').forEach(c => c.innerHTML = '');
+
+      players.forEach((player, pIdx) => {
+        if (pIdx >= gameConfig.playerCount) return;
+
+        const container = document.getElementById(`pawn-container-${player.position}`);
+        if (!container) return;
+
+        const pawn = document.createElement('div');
+        const isP1 = pIdx === 0;
+        pawn.id = `pawn-${pIdx}`;
+        pawn.className = `player-pawn w-6 h-6 sm:w-7 sm:h-7 text-xs sm:text-sm font-bold border-2 ${
+          isP1 ? 'bg-amber-400 border-amber-800 text-amber-950 shadow-amber-900/40' 
+               : 'bg-teal-400 border-teal-800 text-teal-950 shadow-teal-900/40'
+        }`;
+        pawn.title = `${player.name} (${player.charName})`;
+        pawn.innerHTML = `<span>${player.icon}</span>`;
+        container.appendChild(pawn);
+      });
+    }
+
+    function updateTurnUI() {
+      const p = players[activePlayerIdx];
+      const p1 = players[0];
+      const p2 = players[1];
+
+      document.getElementById('p1HeaderIcon').textContent = p1.icon;
+      document.getElementById('p1HeaderName').textContent = p1.name;
+      document.getElementById('p1ScoreBadge').textContent = p1.score;
+      document.getElementById('p1CardBadge').textContent = p1.bag.length;
+
+      const p2Card = document.getElementById('p2StatusCard');
+      if (gameConfig.playerCount === 2) {
+        p2Card.classList.remove('hidden');
+        document.getElementById('p2HeaderIcon').textContent = p2.icon;
+        document.getElementById('p2HeaderName').textContent = p2.name;
+        document.getElementById('p2ScoreBadge').textContent = p2.score;
+        document.getElementById('p2CardBadge').textContent = p2.bag.length;
+
+        if (activePlayerIdx === 0) {
+          document.getElementById('p1StatusCard').classList.add('ring-2', 'ring-amber-300');
+          document.getElementById('p2StatusCard').classList.remove('ring-2', 'ring-teal-300');
+        } else {
+          document.getElementById('p2StatusCard').classList.add('ring-2', 'ring-teal-300');
+          document.getElementById('p1StatusCard').classList.remove('ring-2', 'ring-amber-300');
+        }
+      } else {
+        p2Card.classList.add('hidden');
+      }
+
+      const turnBanner = document.getElementById('turnBanner');
+      document.getElementById('activePlayerPawnIcon').textContent = p.icon;
+      document.getElementById('activePlayerNameText').textContent = `${p.name} 님의 차례`;
+      document.getElementById('activePlayerTurnsLeft').textContent = `${p.lapsCompleted} / ${gameConfig.maxLaps} 바퀴`;
+
+      if (activePlayerIdx === 0) {
+        turnBanner.className = "w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 text-white shadow-md flex items-center justify-between z-10 transition-colors duration-300";
+      } else {
+        turnBanner.className = "w-full py-1.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 via-teal-600 to-emerald-600 text-white shadow-md flex items-center justify-between z-10 transition-colors duration-300";
+      }
+    }
+
+    const diceRotations = {
+      1: { x: 0, y: 0 },
+      2: { x: 0, y: -90 },
+      3: { x: -90, y: 0 },
+      4: { x: 90, y: 0 },
+      5: { x: 0, y: 90 },
+      6: { x: 0, y: 180 }
+    };
+
+    function triggerDiceRoll() {
+      if (isMoving) return;
+      initSound();
+
+      isMoving = true;
+      rollDiceBtn.disabled = true;
+      rollStatusTip.textContent = "주사위가 굴러가고 있습니다... 데구르르 🎲";
+
+      playToneSound('roll');
+
+      const rollValue = Math.floor(Math.random() * 6) + 1;
+      const extraX = (Math.floor(Math.random() * 3) + 3) * 360;
+      const extraY = (Math.floor(Math.random() * 3) + 3) * 360;
+      const finalRot = diceRotations[rollValue];
+
+      diceCube.style.transform = `rotateX(${finalRot.x + extraX}deg) rotateY(${finalRot.y + extraY}deg)`;
+
+      setTimeout(() => {
+        diceResultLabel.textContent = `주사위 결과: [ ${rollValue} ] 칸 전진!`;
+        movePlayerSteps(rollValue);
+      }, 800);
+    }
+
+    rollDiceBtn.addEventListener('click', triggerDiceRoll);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isMoving && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        triggerDiceRoll();
+      }
+    });
+
+    function movePlayerSteps(steps) {
+      const player = players[activePlayerIdx];
+      let stepsRemaining = steps;
+
+      rollStatusTip.textContent = `${player.name} 님이 전진 중입니다...`;
+
+      const moveInterval = setInterval(() => {
+        if (stepsRemaining > 0) {
+          player.position = (player.position + 1) % 24;
+
+          if (player.position === 0) {
+            player.lapsCompleted = (player.lapsCompleted || 0) + 1;
+            showToast(`🎉 ${player.name} 님이 ${player.lapsCompleted}바퀴를 완주했습니다! ⛺`);
+          }
+
+          stepsRemaining--;
+          playToneSound('hop');
+          renderPawns();
+
+          const currentPawn = document.getElementById(`pawn-${player.id}`);
+          if (currentPawn) {
+            currentPawn.classList.add('pawn-hop');
+            setTimeout(() => currentPawn.classList.remove('pawn-hop'), 260);
+          }
+        } else {
+          clearInterval(moveInterval);
+          onPlayerLanded(player.position);
+        }
+      }, 320);
+    }
+
+    function onPlayerLanded(position) {
+      playToneSound('land');
+
+      document.querySelectorAll('.board-cell').forEach(c => c.classList.remove('active-destination'));
+
+      const landCell = document.getElementById(`cell-${position}`);
+      if (landCell) {
+        landCell.classList.add('active-destination');
+      }
+
+      const tile = TILES_DATA[position];
+      rollStatusTip.textContent = `[${tile.shortTitle}] 칸에 도착했습니다!`;
+
+      setTimeout(() => {
+        openActivityModal(position, true);
+      }, 400);
+    }
+
+    const activityModal = document.getElementById('activityModal');
+    const modalCategoryBadge = document.getElementById('modalCategoryBadge');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalExpBonusBadge = document.getElementById('modalExpBonusBadge');
+    const modalBody = document.getElementById('modalBody');
+    const modalFooter = document.getElementById('modalFooter');
+
+    function openActivityModal(cellIdx, isTurnAction = false) {
+      initSound();
+      if (scenarioTimerInterval) {
+        clearInterval(scenarioTimerInterval);
+        scenarioTimerInterval = null;
+      }
+
+      const tile = TILES_DATA[cellIdx];
+      const p = players[activePlayerIdx];
+
+      modalTitle.textContent = `${tile.icon} ${tile.title}`;
+      modalCategoryBadge.textContent = tile.badge;
+      modalCategoryBadge.className = `text-xs font-black px-2.5 py-0.5 rounded-full ${tile.badgeColor} font-quest`;
+
+      // 1. START CELL
+      if (tile.type === 'start') {
+        modalExpBonusBadge.textContent = '+1점 ⭐';
+        modalBody.innerHTML = `
+          <div class="text-center py-4">
+            <div class="text-5xl mb-2">⛺</div>
+            <h4 class="font-quest text-lg font-bold text-amber-950">탐험의 출발 캠프에 오신 것을 환영합니다!</h4>
+            <p class="text-stone-600 mt-2 text-xs leading-relaxed">
+              이곳을 지날 때마다 진로 탐험의 에너지가 충전됩니다.<br>
+              다양한 직업을 탐색하고 미래 역량을 쑥쑥 키워보세요!
+            </p>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-quest font-bold text-sm" onclick="completeActivity(1, '출발 캠프 휴식')">
+            확인 및 계속 탐험하기
+          </button>
+        `;
+      }
+
+      // 2. CAREER EXPLORATION (직업탐험 6칸)
+      else if (tile.type === 'job') {
+        const det = tile.details;
+        modalExpBonusBadge.textContent = '+2점 ⭐';
+        modalBody.innerHTML = `
+          <div class="space-y-2.5">
+            <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">${tile.icon}</span>
+                <div>
+                  <h4 class="font-quest text-base font-bold text-indigo-950">${det.jobName}</h4>
+                  <span class="text-[11px] text-indigo-600 font-bold">미래를 밝히는 전문 직업</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm space-y-2 text-xs">
+              <div class="flex items-start gap-2">
+                <span class="font-black text-indigo-800 shrink-0 w-24">📌 주로 하는 일:</span>
+                <span class="text-stone-700 leading-relaxed">${det.duties}</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-black text-indigo-800 shrink-0 w-24">🏢 일하는 장소:</span>
+                <span class="text-stone-700 leading-relaxed">${det.workplace}</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-black text-indigo-800 shrink-0 w-24">💡 필요한 역량:</span>
+                <span class="text-stone-700 leading-relaxed">${det.abilities}</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="font-black text-indigo-800 shrink-0 w-24">🌍 세상에 주는 도움:</span>
+                <span class="text-stone-700 leading-relaxed font-bold text-indigo-900">${det.impact}</span>
+              </div>
+            </div>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-quest font-bold text-sm shadow-md" onclick="completeJobExploration('${tile.title}')">
+            ✨ 직업 탐험 완료 (+2점)
+          </button>
+        `;
+      }
+
+      // 3. KNOWING MYSELF (나를 알아보기 4칸)
+      else if (tile.type === 'self') {
+        modalExpBonusBadge.textContent = '+1점 ⭐';
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-3.5">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="text-2xl">${tile.icon}</span>
+                <h4 class="font-quest text-base font-bold text-emerald-950">${tile.question}</h4>
+              </div>
+              <p class="text-[11px] text-emerald-800 font-bold bg-emerald-100/80 px-2.5 py-1 rounded-lg">
+                💡 힌트: ${tile.hint}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1">나의 생각 적기 (한 줄로 편하게):</label>
+              <input id="selfAnswerInput" type="text" maxlength="40" class="w-full p-2.5 rounded-xl border-2 border-emerald-400 bg-white text-stone-900 font-bold text-sm focus:outline-none focus:border-emerald-600" placeholder="자유롭게 입력해보세요!">
+            </div>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-quest font-bold text-sm shadow-md" onclick="completeSelfDiscovery()">
+            답변 완료 (+1점)
+          </button>
+        `;
+      }
+
+      // 4. CAREER SCENARIO PROBLEM SOLVING (직업 상황 해결 4칸 - 30초 타이머)
+      else if (tile.type === 'scenario') {
+        modalExpBonusBadge.textContent = '+2점 + 문제해결 카드 ⭐';
+        scenarioSecondsLeft = 30;
+
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <div class="bg-orange-50 border-2 border-orange-300 rounded-2xl p-3">
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="text-xs font-bold text-orange-800 bg-orange-200 px-2 py-0.5 rounded-full">
+                  역할: ${tile.jobRole}
+                </span>
+                <span id="timerBadge" class="text-xs font-black text-rose-700 bg-white px-2 py-0.5 rounded-full border border-rose-300">
+                  ⏱️ 30초 생각하기
+                </span>
+              </div>
+              <h4 class="font-bold text-stone-900 text-sm leading-snug mt-1">${tile.scenario}</h4>
+            </div>
+
+            <!-- Timer Progress Bar -->
+            <div class="bg-stone-200 rounded-full h-2.5 overflow-hidden">
+              <div id="timerProgressBar" class="bg-gradient-to-r from-orange-500 to-rose-500 h-full w-full transition-all duration-1000"></div>
+            </div>
+
+            <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-[11px] text-amber-900">
+              <span class="font-bold">💡 생각 힌트:</span> ${tile.hint}
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1">나만의 해결 아이디어:</label>
+              <input id="scenarioAnswerInput" type="text" maxlength="50" class="w-full p-2.5 rounded-xl border-2 border-orange-400 bg-white text-stone-900 font-bold text-sm focus:outline-none focus:border-orange-600" placeholder="어떻게 해결하시겠습니까?">
+            </div>
+          </div>
+        `;
+
+        modalFooter.innerHTML = `
+          <button id="scenarioSubmitBtn" class="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-white font-quest font-bold text-sm shadow-md" onclick="completeScenarioResolution()">
+            💡 해결 완료 (+2점 & 문제해결 역량 카드)
+          </button>
+        `;
+
+        startScenarioCountdown();
+      }
+
+      // 5. COMPETENCY ACQUISITION (역량 획득 3칸)
+      else if (tile.type === 'comp') {
+        const randomCard = COMPETENCY_CARDS[Math.floor(Math.random() * COMPETENCY_CARDS.length)];
+        modalExpBonusBadge.textContent = '+1점 + 역량 카드 획득 ⭐';
+
+        modalBody.innerHTML = `
+          <div class="text-center py-2 space-y-3">
+            <div class="text-4xl">🎁</div>
+            <h4 class="font-quest text-base sm:text-lg font-bold text-purple-950">미래 역량 보물상자를 열었습니다!</h4>
+            
+            <div class="p-4 rounded-2xl border-2 ${randomCard.color} shadow-sm max-w-xs mx-auto">
+              <span class="text-4xl block mb-1">${randomCard.icon}</span>
+              <span class="font-quest text-lg font-black block">${randomCard.name} 역량</span>
+              <p class="text-xs text-stone-600 mt-1 leading-relaxed">${randomCard.desc}</p>
+            </div>
+          </div>
+        `;
+
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-quest font-bold text-sm shadow-md" onclick="grantCompetencyCard('${randomCard.id}')">
+            🎒 역량 가방에 넣기 (+1점)
+          </button>
+        `;
+      }
+
+      // 6. CAREER CHANCE (진로 찬스 3칸)
+      else if (tile.type === 'chance') {
+        modalExpBonusBadge.textContent = '행운의 찬스 ⭐';
+        const chanceType = Math.floor(Math.random() * 3);
+
+        if (chanceType === 0) {
+          modalBody.innerHTML = `
+            <div class="text-center py-3 space-y-2">
+              <span class="text-5xl">🌟</span>
+              <h4 class="font-quest text-lg font-bold text-yellow-950">멘토와의 특별한 만남!</h4>
+              <p class="text-xs text-stone-700">진로 멘토에게 뜻깊은 조언을 얻어 보너스 경험 점수를 획득합니다.</p>
+              <div class="text-2xl font-black text-amber-700 font-quest py-2">+2 경험 점수!</div>
+            </div>
+          `;
+          modalFooter.innerHTML = `
+            <button class="w-full py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-yellow-950 font-quest font-bold text-sm shadow-md" onclick="completeActivity(2, '진로 멘토링 찬스')">
+              찬스 보너스 받기
+            </button>
+          `;
+        } else if (chanceType === 1) {
+          modalBody.innerHTML = `
+            <div class="space-y-2.5">
+              <div class="text-center">
+                <span class="text-4xl">🎒</span>
+                <h4 class="font-quest text-base font-bold text-yellow-950">자유 역량 선택 찬스!</h4>
+                <p class="text-xs text-stone-600">원하는 미래 역량 카드 1장을 골라보세요.</p>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5" id="chanceCardChoiceGrid"></div>
+            </div>
+          `;
+          setTimeout(() => {
+            const grid = document.getElementById('chanceCardChoiceGrid');
+            if (grid) {
+              COMPETENCY_CARDS.forEach(c => {
+                const btn = document.createElement('button');
+                btn.className = `p-2 rounded-xl border-2 text-left flex items-center gap-2 hover:brightness-95 ${c.color}`;
+                btn.innerHTML = `<span class="text-xl">${c.icon}</span><span class="font-quest text-xs font-bold">${c.name}</span>`;
+                btn.onclick = () => grantCompetencyCard(c.id, true);
+                grid.appendChild(btn);
+              });
+            }
+          }, 50);
+          modalFooter.innerHTML = '';
+        } else {
+          modalBody.innerHTML = `
+            <div class="text-center py-3 space-y-2">
+              <span class="text-5xl">⚡</span>
+              <h4 class="font-quest text-lg font-bold text-yellow-950">진로 박람회 직행 티켓!</h4>
+              <p class="text-xs text-stone-700">진로 박람회에 초대받아 앞으로 2칸을 즉시 추가 전진합니다!</p>
+            </div>
+          `;
+          modalFooter.innerHTML = `
+            <button class="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-quest font-bold text-sm shadow-md" onclick="handleAdvanceTwoSteps()">
+              🚀 2칸 앞으로 전진!
+            </button>
+          `;
+        }
+      }
+
+      // 7. CAREER CRISIS (진로 위기 2칸)
+      else if (tile.type === 'crisis') {
+        modalExpBonusBadge.textContent = '극복 시 계속 전진 ⭐';
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <div class="bg-rose-50 border-2 border-rose-300 rounded-2xl p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">${tile.icon}</span>
+                <h4 class="font-quest text-base font-bold text-rose-950">진로 돌발 위기 발생!</h4>
+              </div>
+              <p class="text-xs text-stone-800 font-bold leading-relaxed">${tile.situation}</p>
+            </div>
+
+            <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-200 text-xs text-stone-700">
+              <span class="font-bold text-rose-800">💪 회복탄력성 힌트:</span> ${tile.guidance}
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1">나의 극복 대안 적기:</label>
+              <input id="crisisAnswerInput" type="text" maxlength="50" class="w-full p-2.5 rounded-xl border-2 border-rose-400 bg-white text-stone-900 font-bold text-sm focus:outline-none focus:border-rose-600" placeholder="어떻게 극복하고 대처하겠습니까?">
+            </div>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-quest font-bold text-sm shadow-md" onclick="completeCrisisResolution()">
+            🛡️ 위기 극복 및 계속 진행
+          </button>
+        `;
+      }
+
+      // 8. CAREER FUSION (직업 융합 1칸)
+      else if (tile.type === 'fusion') {
+        modalExpBonusBadge.textContent = '+3점 대박 찬스 ⭐';
+        modalBody.innerHTML = `
+          <div class="space-y-3">
+            <div class="bg-fuchsia-50 border-2 border-fuchsia-300 rounded-2xl p-3">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-2xl">${tile.icon}</span>
+                <h4 class="font-quest text-base font-bold text-fuchsia-950">창의적 직업 융합 연구소</h4>
+              </div>
+              <p class="text-xs text-stone-700 leading-relaxed">${tile.desc}</p>
+            </div>
+
+            <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-200 text-xs text-stone-600 space-y-1">
+              <p><span class="font-bold text-fuchsia-800">융합 예시 1:</span> 축구 + 데이터 분석가 = 스포츠 데이터 전략가</p>
+              <p><span class="font-bold text-fuchsia-800">융합 예시 2:</span> 웹툰 + 교사 = 에듀툰 크리에이터</p>
+            </div>
+
+            <div class="space-y-2">
+              <div>
+                <label class="block text-[11px] font-bold text-stone-700 mb-0.5">나의 융합 공식 (좋아하는 것 + 직업):</label>
+                <input id="fusionFormulaInput" type="text" maxlength="30" class="w-full p-2 rounded-xl border-2 border-fuchsia-300 bg-white text-xs font-bold focus:outline-none focus:border-fuchsia-600" placeholder="예: 요리 + 로봇공학자">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-stone-700 mb-0.5">발명한 새로운 직업 이름과 하는 일:</label>
+                <input id="fusionJobInput" type="text" maxlength="40" class="w-full p-2 rounded-xl border-2 border-fuchsia-300 bg-white text-xs font-bold focus:outline-none focus:border-fuchsia-600" placeholder="예: 스마트 셰프로봇 디자이너">
+              </div>
+            </div>
+          </div>
+        `;
+        modalFooter.innerHTML = `
+          <button class="w-full py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:brightness-105 text-white font-quest font-bold text-sm shadow-md" onclick="completeJobFusion()">
+            💡 신직업 발명 완료 (+3점)
+          </button>
+        `;
+      }
+
+      activityModal.classList.remove('hidden');
+    }
+
+    function startScenarioCountdown() {
+      const badge = document.getElementById('timerBadge');
+      const bar = document.getElementById('timerProgressBar');
+
+      if (scenarioTimerInterval) clearInterval(scenarioTimerInterval);
+
+      scenarioTimerInterval = setInterval(() => {
+        scenarioSecondsLeft--;
+        if (badge) badge.textContent = `⏱️ ${scenarioSecondsLeft}초 남음`;
+        if (bar) bar.style.width = `${(scenarioSecondsLeft / 30) * 100}%`;
+
+        if (scenarioSecondsLeft <= 5 && scenarioSecondsLeft > 0) {
+          playToneSound('timer');
+        }
+
+        if (scenarioSecondsLeft <= 0) {
+          clearInterval(scenarioTimerInterval);
+          scenarioTimerInterval = null;
+          if (badge) badge.textContent = `💡 생각 완료! 답을 적어보세요`;
+        }
+      }, 1000);
+    }
+
+    function completeActivity(scoreDelta, desc) {
+      const p = players[activePlayerIdx];
+      p.score += scoreDelta;
+      playToneSound('success');
+      showToast(`${p.name} 님이 [${desc}] 활동을 완료하여 +${scoreDelta}점을 얻었습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function completeJobExploration(jobName) {
+      const p = players[activePlayerIdx];
+      p.score += 2;
+      p.metJobs.add(jobName);
+      playToneSound('success');
+      showToast(`${p.name} 님이 [${jobName}] 직업을 탐색하고 +2점을 얻었습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function completeSelfDiscovery() {
+      const p = players[activePlayerIdx];
+      p.score += 1;
+      playToneSound('success');
+      showToast(`${p.name} 님이 나를 알아보기 답변을 완료하여 +1점을 얻었습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function completeScenarioResolution() {
+      if (scenarioTimerInterval) {
+        clearInterval(scenarioTimerInterval);
+        scenarioTimerInterval = null;
+      }
+      const p = players[activePlayerIdx];
+      p.score += 2;
+      p.bag.push('solve');
+      playToneSound('success');
+      showToast(`${p.name} 님이 직업 문제해결에 성공하여 +2점 & [문제해결] 카드를 획득했습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function grantCompetencyCard(cardId, isFromChoice = false) {
+      const p = players[activePlayerIdx];
+      p.score += 1;
+      p.bag.push(cardId);
+      const card = COMPETENCY_CARDS.find(c => c.id === cardId);
+      playToneSound('bonus');
+      showToast(`${p.name} 님이 [${card ? card.name : '역량'}] 카드를 획득했습니다! (+1점)`);
+      closeModalAndNextTurn();
+    }
+
+    function handleAdvanceTwoSteps() {
+      activityModal.classList.add('hidden');
+      const p = players[activePlayerIdx];
+      showToast(`${p.name} 님이 찬스로 2칸 추가 전진합니다! 🚀`);
+      movePlayerSteps(2);
+    }
+
+    function completeCrisisResolution() {
+      playToneSound('success');
+      showToast(`${players[activePlayerIdx].name} 님이 위기를 멋지게 극복했습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function completeJobFusion() {
+      const p = players[activePlayerIdx];
+      p.score += 3;
+      p.bag.push('creat');
+      playToneSound('success');
+      showToast(`🎉 ${p.name} 님이 신직업을 훌륭하게 발명하여 +3점 & [창의성] 카드를 획득했습니다!`);
+      closeModalAndNextTurn();
+    }
+
+    function closeModalAndNextTurn() {
+      if (scenarioTimerInterval) {
+        clearInterval(scenarioTimerInterval);
+        scenarioTimerInterval = null;
+      }
+      activityModal.classList.add('hidden');
+      checkTurnOrComplete();
+    }
+
+    function checkTurnOrComplete() {
+      const p = players[activePlayerIdx];
+      updateTurnUI();
+
+      if (p.lapsCompleted >= gameConfig.maxLaps) {
+        let allDone = true;
+        for (let i = 0; i < gameConfig.playerCount; i++) {
+          if (players[i].lapsCompleted < gameConfig.maxLaps) {
+            allDone = false;
+            break;
+          }
+        }
+
+        if (allDone) {
+          openReportModal();
+          return;
+        }
+      }
+
+      if (gameConfig.playerCount === 2) {
+        activePlayerIdx = (activePlayerIdx + 1) % 2;
+      }
+
+      isMoving = false;
+      rollDiceBtn.disabled = false;
+      updateTurnUI();
+      rollStatusTip.textContent = `${players[activePlayerIdx].name} 님의 차례입니다. 주사위를 굴려주세요!`;
+    }
+
+    function openInventoryForPlayer(pIdx) {
+      initSound();
+      inventoryViewingPlayerIdx = pIdx;
+      renderInventoryModal();
+      document.getElementById('inventoryModal').classList.remove('hidden');
+    }
+
+    document.getElementById('closeInventoryBtn').onclick = () => {
+      document.getElementById('inventoryModal').classList.add('hidden');
+    };
+
+    function renderInventoryModal() {
+      const p = players[inventoryViewingPlayerIdx];
+      const tabs = document.getElementById('inventoryPlayerTabs');
+      const tab1 = document.getElementById('invTabP1');
+      const tab2 = document.getElementById('invTabP2');
+
+      if (gameConfig.playerCount === 2) {
+        tabs.classList.remove('hidden');
+        tab1.textContent = `${players[0].icon} ${players[0].name}`;
+        tab2.textContent = `${players[1].icon} ${players[1].name}`;
+
+        if (inventoryViewingPlayerIdx === 0) {
+          tab1.className = 'py-1.5 rounded-lg text-xs font-bold bg-amber-700 text-white transition text-center';
+          tab2.className = 'py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 transition text-center hover:bg-amber-200';
+        } else {
+          tab2.className = 'py-1.5 rounded-lg text-xs font-bold bg-teal-700 text-white transition text-center';
+          tab1.className = 'py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 transition text-center hover:bg-amber-200';
+        }
+
+        tab1.onclick = () => { inventoryViewingPlayerIdx = 0; renderInventoryModal(); };
+        tab2.onclick = () => { inventoryViewingPlayerIdx = 1; renderInventoryModal(); };
+      } else {
+        tabs.classList.add('hidden');
+      }
+
+      const counts = {};
+      p.bag.forEach(id => {
+        counts[id] = (counts[id] || 0) + 1;
+      });
+
+      const metJobsArr = Array.from(p.metJobs);
+
+      let cardsHtml = '';
+      if (p.bag.length === 0) {
+        cardsHtml = `<div class="text-center py-4 text-stone-500 font-bold text-xs bg-amber-100/50 rounded-xl">아직 획득한 역량 카드가 없습니다.<br>탐험을 계속하며 카드를 모아보세요!</div>`;
+      } else {
+        cardsHtml = `<div class="grid grid-cols-2 gap-2">`;
+        COMPETENCY_CARDS.forEach(c => {
+          const count = counts[c.id] || 0;
+          if (count > 0) {
+            cardsHtml += `
+              <div class="p-2.5 rounded-xl border-2 ${c.color} shadow-sm flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xl">${c.icon}</span>
+                  <span class="font-quest text-xs font-bold">${c.name}</span>
+                </div>
+                <span class="font-quest text-sm font-black bg-white/80 px-2 py-0.5 rounded-full shadow-inner">x${count}</span>
+              </div>
+            `;
+          }
+        });
+        cardsHtml += `</div>`;
+      }
+
+      let jobsHtml = '';
+      if (metJobsArr.length === 0) {
+        jobsHtml = `<div class="text-xs text-stone-500 font-bold bg-amber-100/50 p-2.5 rounded-xl text-center">아직 직접 탐험한 직업이 없습니다.</div>`;
+      } else {
+        jobsHtml = `<div class="flex flex-wrap gap-1.5">`;
+        metJobsArr.forEach(job => {
+          jobsHtml += `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-900 border border-indigo-300">💼 ${job}</span>`;
+        });
+        jobsHtml += `</div>`;
+      }
+
+      const content = document.getElementById('inventoryContent');
+      content.innerHTML = `
+        <div class="bg-white p-3 rounded-2xl border border-amber-200 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-3xl">${p.icon}</span>
+            <div>
+              <div class="flex items-center gap-1">
+                <h4 class="font-quest text-base font-bold text-amber-950">${p.name}</h4>
+                <span class="text-[10px] text-stone-500 font-bold">(${p.charName})</span>
+              </div>
+              <p class="text-[11px] text-stone-600 font-bold">완주: ${p.lapsCompleted} / ${gameConfig.maxLaps} 바퀴</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-stone-500 font-bold block">진로 경험 점수</span>
+            <span class="font-quest text-lg font-black text-amber-700">${p.score}점</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-amber-900 mb-1.5 flex items-center gap-1">
+            <span>🎒</span> <span>보유한 미래 역량 카드 (${p.bag.length}장):</span>
+          </div>
+          ${cardsHtml}
+        </div>
+
+        <div>
+          <div class="text-xs font-bold text-indigo-900 mb-1.5 flex items-center gap-1">
+            <span>🗺️</span> <span>탐험한 직업 목록 (${metJobsArr.length}개):</span>
+          </div>
+          ${jobsHtml}
+        </div>
+      `;
+    }
+
+    function getPlayerCompetencySummary(player) {
+      const counts = {};
+      COMPETENCY_CARDS.forEach(c => { counts[c.id] = 0; });
+      player.bag.forEach(id => {
+        if (counts[id] !== undefined) counts[id]++;
+      });
+
+      let maxCount = -1;
+      let topCompId = 'solve';
+      COMPETENCY_CARDS.forEach(c => {
+        if (counts[c.id] > maxCount) {
+          maxCount = counts[c.id];
+          topCompId = c.id;
+        }
+      });
+
+      const topCard = COMPETENCY_CARDS.find(c => c.id === topCompId) || COMPETENCY_CARDS[0];
+
+      const TITLES_MAP = {
+        creat: '창의적인 미래 설계자',
+        comm: '따뜻한 소통 전문가',
+        collab: '함께하는 협력가',
+        solve: '끈기 있는 문제 해결사',
+        resp: '믿음직한 실행가',
+        digital: '디지털 탐험 전문가'
+      };
+
+      const title = TITLES_MAP[topCompId] || '열정적인 진로 탐험가';
+
+      const cardsTextArr = [];
+      COMPETENCY_CARDS.forEach(c => {
+        if (counts[c.id] > 0) {
+          cardsTextArr.push(`${c.name} ${counts[c.id]}장`);
+        }
+      });
+      const cardsText = cardsTextArr.length > 0 ? cardsTextArr.join(', ') : '없음';
+
+      return {
+        counts,
+        mostComp: player.bag.length > 0 ? topCard.name : '다양한 탐색',
+        title,
+        cardsText
+      };
+    }
+
+    function initPlayerReportData(pIdx) {
+      const p = players[pIdx];
+      const r = playerReports[pIdx];
+      const metArr = Array.from(p.metJobs);
+
+      if (!r.selectedJob || (!r.isCustomJob && !metArr.includes(r.selectedJob))) {
+        if (metArr.length > 0) {
+          r.selectedJob = metArr[0];
+          r.jobDuty = JOB_DEFAULT_DUTIES[metArr[0]] || '직무 탐색';
+        } else {
+          r.selectedJob = '데이터 분석가';
+          r.jobDuty = JOB_DEFAULT_DUTIES['데이터 분석가'];
+        }
+      }
+    }
+
+    function openReportModal() {
+      playToneSound('success');
+      currentReportPlayerIdx = 0;
+      initPlayerReportData(0);
+      if (gameConfig.playerCount === 2) {
+        initPlayerReportData(1);
+      }
+      renderReportModal();
+      document.getElementById('reportModal').classList.remove('hidden');
+    }
+
+    function renderReportModal() {
+      const pIdx = currentReportPlayerIdx;
+      const p = players[pIdx];
+      const r = playerReports[pIdx];
+      const summary = getPlayerCompetencySummary(p);
+      const metJobsArr = Array.from(p.metJobs);
+      const metJobsStr = metJobsArr.length > 0 ? metJobsArr.join(', ') : '없음';
+
+      const tabs = document.getElementById('reportPlayerTabs');
+      const tab1 = document.getElementById('reportTabP1');
+      const tab2 = document.getElementById('reportTabP2');
+
+      if (gameConfig.playerCount === 2) {
+        tabs.classList.remove('hidden');
+        tab1.textContent = `${players[0].icon} ${players[0].name}의 보고서`;
+        tab2.textContent = `${players[1].icon} ${players[1].name}의 보고서`;
+
+        if (pIdx === 0) {
+          tab1.className = 'py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-700 text-white transition text-center shadow-sm';
+          tab2.className = 'py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-stone-700 transition text-center hover:bg-amber-100 border border-amber-300';
+        } else {
+          tab2.className = 'py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-teal-700 text-white transition text-center shadow-sm';
+          tab1.className = 'py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-white text-stone-700 transition text-center hover:bg-teal-100 border border-teal-300';
+        }
+
+        tab1.onclick = () => { currentReportPlayerIdx = 0; renderReportModal(); };
+        tab2.onclick = () => { currentReportPlayerIdx = 1; renderReportModal(); };
+      } else {
+        tabs.classList.add('hidden');
+      }
+
+      const coreJobs = ['데이터 분석가', '정보보안 전문가', '기계공학자', '로봇공학자', '교사', '스마트농업 전문가'];
+      const selectableJobs = Array.from(new Set([...metJobsArr, ...coreJobs]));
+
+      const container = document.getElementById('reportContent');
+      container.innerHTML = `
+        <!-- Player Banner -->
+        <div class="bg-white/95 p-3 sm:p-4 rounded-2xl border-2 ${pIdx === 0 ? 'border-amber-400' : 'border-teal-400'} shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <span class="text-3xl sm:text-4xl">${p.icon}</span>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="font-quest text-base sm:text-lg font-bold text-stone-900">${p.name}</h4>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full ${pIdx === 0 ? 'bg-amber-100 text-amber-900' : 'bg-teal-100 text-teal-900'}">
+                  ${p.charName} (${p.charDesc})
+                </span>
+              </div>
+              <p class="text-[11px] text-stone-500 font-bold">24칸 진로 탐험 모험을 성실하게 완주했습니다!</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-stone-500 block font-bold">진로 경험 점수</span>
+            <span class="font-quest text-xl sm:text-2xl font-black ${pIdx === 0 ? 'text-amber-700' : 'text-teal-700'}">${p.score}점</span>
+          </div>
+        </div>
+
+        <!-- [1. 오늘의 게임 기록] -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
+          <div class="flex items-center gap-1.5 pb-1.5 border-b border-amber-100">
+            <span class="text-base">📊</span>
+            <h5 class="font-quest text-sm font-bold text-amber-950">1. 오늘의 게임 기록</h5>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-200/80">
+              <span class="font-bold text-amber-900 block mb-0.5">⭐ 획득한 진로 경험 점수:</span>
+              <span class="font-black text-sm text-stone-800">${p.score}점</span>
+            </div>
+
+            <div class="bg-purple-50/80 p-2.5 rounded-xl border border-purple-200/80">
+              <span class="font-bold text-purple-900 block mb-0.5">🎒 획득한 역량 카드와 개수:</span>
+              <span class="font-bold text-stone-800">${summary.cardsText}</span>
+            </div>
+
+            <div class="bg-indigo-50/80 p-2.5 rounded-xl border border-indigo-200/80">
+              <span class="font-bold text-indigo-900 block mb-0.5">🧭 실제로 만난 직업:</span>
+              <span class="font-bold text-stone-800">${metJobsStr}</span>
+            </div>
+
+            <div class="bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200/80">
+              <span class="font-bold text-emerald-900 block mb-0.5">💎 가장 많이 획득한 역량:</span>
+              <span class="font-bold text-stone-800 text-sm text-emerald-800">${summary.mostComp}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- [2. 오늘의 탐험 칭호] -->
+        <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 p-3.5 sm:p-4 rounded-2xl border-2 border-yellow-400 shadow-sm text-center space-y-1.5">
+          <span class="text-[11px] font-bold text-amber-800 tracking-wide uppercase">2. 오늘의 탐험 칭호</span>
+          <div class="flex items-center justify-center gap-2">
+            <span class="text-2xl animate-pulse">👑</span>
+            <span class="font-quest text-lg sm:text-xl font-black text-amber-950 tracking-wide">
+              ${summary.title}
+            </span>
+            <span class="text-2xl animate-pulse">✨</span>
+          </div>
+          <p class="text-[10px] sm:text-[11px] text-stone-600 bg-white/70 p-2 rounded-xl border border-amber-200 leading-relaxed max-w-lg mx-auto">
+            💡 이 칭호는 오늘 게임에서 얻은 카드로 만든 재미있는 결과입니다.<br>
+            나의 성격이나 직업 적합성을 판단하는 결과는 아닙니다.
+          </p>
+        </div>
+
+        <!-- [3. 내가 관심을 갖게 된 직업] -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
+          <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-amber-100">
+            <div class="flex items-center gap-1.5">
+              <span class="text-base">🎯</span>
+              <h5 class="font-quest text-sm font-bold text-amber-950">3. 내가 관심을 갖게 된 직업</h5>
+            </div>
+            <span class="text-[11px] text-amber-700 font-bold">더 궁금해진 직업 하나를 선택하세요</span>
+          </div>
+
+          <div>
+            <div class="text-[11px] font-bold text-stone-600 mb-1">직업 목록 선택:</div>
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              ${selectableJobs.map(jobName => {
+                const isMet = metJobsArr.includes(jobName);
+                const isSelected = !r.isCustomJob && r.selectedJob === jobName;
+                return `
+                  <button type="button" onclick="selectReportJob(${pIdx}, '${jobName}', false)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
+                    isSelected 
+                      ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                      : 'bg-stone-100 text-stone-700 hover:bg-amber-100 border border-stone-200'
+                  }">
+                    <span>${isMet ? '✨' : '💼'}</span>
+                    <span>${jobName}</span>
+                  </button>
+                `;
+              }).join('')}
+              
+              <button type="button" onclick="selectReportJob(${pIdx}, '', true)" class="px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
+                r.isCustomJob 
+                  ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                  : 'bg-stone-100 text-stone-700 hover:bg-amber-100 border border-stone-200'
+              }">
+                <span>✏️</span>
+                <span>직접 입력</span>
+              </button>
+            </div>
+          </div>
+
+          ${r.isCustomJob ? `
+            <div class="space-y-2 bg-amber-50/70 p-2.5 rounded-xl border border-amber-300">
+              <div>
+                <label class="block text-[11px] font-bold text-amber-900 mb-0.5">관심 직업 이름 직접 입력:</label>
+                <input type="text" maxlength="20" value="${escapeHtml(r.customJobName)}" oninput="updateCustomJobName(${pIdx}, this.value)" placeholder="예: 우주비행사, 웹툰작가, 친환경건축가 등" class="w-full p-2 rounded-xl border-2 border-amber-400 bg-white text-stone-900 font-bold text-xs focus:outline-none focus:border-amber-600">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-amber-900 mb-0.5">관심 직업 주로 하는 일 (짧은 구절):</label>
+                <input type="text" maxlength="40" value="${escapeHtml(r.jobDuty)}" oninput="updateJobDuty(${pIdx}, this.value)" placeholder="예: 사람들의 안전을 지킴, 새로운 콘텐츠를 기획" class="w-full p-2 rounded-xl border-2 border-amber-400 bg-white text-stone-900 font-bold text-xs focus:outline-none focus:border-amber-600">
+              </div>
+            </div>
+          ` : `
+            <div class="bg-stone-50 p-2.5 rounded-xl border border-stone-200">
+              <label class="block text-[11px] font-bold text-stone-700 mb-1">관심 직업 주로 하는 일 (짧은 구절):</label>
+              <input type="text" maxlength="50" value="${escapeHtml(r.jobDuty)}" oninput="updateJobDuty(${pIdx}, this.value)" placeholder="주로 하는 일을 짧게 입력하세요" class="w-full p-2 rounded-xl border-2 border-stone-300 bg-white text-stone-900 font-bold text-xs focus:outline-none focus:border-amber-500">
+            </div>
+          `}
+        </div>
+
+        <!-- [4. 왜 관심이 생겼나요?] -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
+          <div class="flex items-center gap-1.5 pb-1.5 border-b border-amber-100">
+            <span class="text-base">💡</span>
+            <h5 class="font-quest text-sm font-bold text-amber-950">4. 왜 관심이 생겼나요?</h5>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            ${REASON_OPTIONS.map(opt => {
+              const isSelected = !r.isCustomReason && r.selectedReason === opt;
+              return `
+                <button type="button" onclick="selectReportReason(${pIdx}, '${opt}', false)" class="p-2 rounded-xl text-left text-xs font-bold transition flex items-center gap-1.5 ${
+                  isSelected 
+                    ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                    : 'bg-stone-50 text-stone-700 hover:bg-amber-50 border border-stone-200'
+                }">
+                  <span>${isSelected ? '🔘' : '⚪'}</span>
+                  <span>${opt}</span>
+                </button>
+              `;
+            }).join('')}
+
+            <button type="button" onclick="selectReportReason(${pIdx}, '', true)" class="p-2 rounded-xl text-left text-xs font-bold transition flex items-center gap-1.5 ${
+              r.isCustomReason 
+                ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                : 'bg-stone-50 text-stone-700 hover:bg-amber-50 border border-stone-200'
+            }">
+              <span>${r.isCustomReason ? '🔘' : '⚪'}</span>
+              <span>직접 입력</span>
+            </button>
+          </div>
+
+          ${r.isCustomReason ? `
+            <div class="mt-1">
+              <input type="text" maxlength="50" value="${escapeHtml(r.customReason)}" oninput="updateCustomReason(${pIdx}, this.value)" placeholder="관심이 생긴 이유를 직접 적어보세요" class="w-full p-2 rounded-xl border-2 border-amber-400 bg-white text-stone-900 font-bold text-xs focus:outline-none focus:border-amber-600">
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- [5. 앞으로 무엇을 더 알아보고 싶나요?] -->
+        <div class="bg-white p-3 sm:p-4 rounded-2xl border border-amber-200 shadow-sm space-y-2.5">
+          <div class="flex items-center gap-1.5 pb-1.5 border-b border-amber-100">
+            <span class="text-base">🔍</span>
+            <h5 class="font-quest text-sm font-bold text-amber-950">5. 앞으로 무엇을 더 알아보고 싶나요?</h5>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+            ${LEARN_OPTIONS.map(opt => {
+              const isSelected = !r.isCustomLearn && r.selectedLearn === opt;
+              return `
+                <button type="button" onclick="selectReportLearn(${pIdx}, '${opt}', false)" class="p-2 rounded-xl text-left text-xs font-bold transition flex items-center gap-1.5 ${
+                  isSelected 
+                    ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                    : 'bg-stone-50 text-stone-700 hover:bg-amber-50 border border-stone-200'
+                }">
+                  <span>${isSelected ? '🔘' : '⚪'}</span>
+                  <span>${opt}</span>
+                </button>
+              `;
+            }).join('')}
+
+            <button type="button" onclick="selectReportLearn(${pIdx}, '', true)" class="p-2 rounded-xl text-left text-xs font-bold transition flex items-center gap-1.5 ${
+              r.isCustomLearn 
+                ? 'bg-amber-600 text-white shadow-sm ring-2 ring-amber-400' 
+                : 'bg-stone-50 text-stone-700 hover:bg-amber-50 border border-stone-200'
+            }">
+              <span>${r.isCustomLearn ? '🔘' : '⚪'}</span>
+              <span>직접 입력</span>
+            </button>
+          </div>
+
+          ${r.isCustomLearn ? `
+            <div class="mt-1">
+              <input type="text" maxlength="50" value="${escapeHtml(r.customLearn)}" oninput="updateCustomLearn(${pIdx}, this.value)" placeholder="더 알아보고 싶은 내용을 직접 적어보세요" class="w-full p-2 rounded-xl border-2 border-amber-400 bg-white text-stone-900 font-bold text-xs focus:outline-none focus:border-amber-600">
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- [6. 진로 탐색 보고서 복사] -->
+        <div class="pt-2">
+          <button type="button" onclick="copyPlayerReport(${pIdx})" class="w-full py-3 sm:py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-700 to-yellow-600 hover:brightness-105 active:scale-95 text-white font-quest text-sm sm:text-base font-black shadow-lg border-2 border-yellow-300 flex items-center justify-center gap-2 transition">
+            <span class="text-xl">📋</span>
+            <span>내 진로 탐색 보고서 복사</span>
+          </button>
+        </div>
+      `;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    window.selectReportJob = function(pIdx, jobName, isCustom) {
+      const r = playerReports[pIdx];
+      r.isCustomJob = isCustom;
+      if (isCustom) {
+        r.selectedJob = r.customJobName || '';
+        r.jobDuty = r.jobDuty || '';
+      } else {
+        r.selectedJob = jobName;
+        r.jobDuty = JOB_DEFAULT_DUTIES[jobName] || '';
+      }
+      playToneSound('hop');
+      renderReportModal();
+    };
+
+    window.updateCustomJobName = function(pIdx, val) {
+      const r = playerReports[pIdx];
+      r.customJobName = val;
+      r.selectedJob = val;
+    };
+
+    window.updateJobDuty = function(pIdx, val) {
+      playerReports[pIdx].jobDuty = val;
+    };
+
+    window.selectReportReason = function(pIdx, reason, isCustom) {
+      const r = playerReports[pIdx];
+      r.isCustomReason = isCustom;
+      if (!isCustom) {
+        r.selectedReason = reason;
+      }
+      playToneSound('hop');
+      renderReportModal();
+    };
+
+    window.updateCustomReason = function(pIdx, val) {
+      playerReports[pIdx].customReason = val;
+    };
+
+    window.selectReportLearn = function(pIdx, learn, isCustom) {
+      const r = playerReports[pIdx];
+      r.isCustomLearn = isCustom;
+      if (!isCustom) {
+        r.selectedLearn = learn;
+      }
+      playToneSound('hop');
+      renderReportModal();
+    };
+
+    window.updateCustomLearn = function(pIdx, val) {
+      playerReports[pIdx].customLearn = val;
+    };
+
+    window.copyPlayerReport = function(pIdx) {
+      const p = players[pIdx];
+      const r = playerReports[pIdx];
+      const summary = getPlayerCompetencySummary(p);
+      const metJobsArr = Array.from(p.metJobs);
+      const metJobsStr = metJobsArr.length > 0 ? metJobsArr.join(', ') : '없음';
+
+      const finalJob = r.isCustomJob ? (r.customJobName.trim() || '미정') : (r.selectedJob || '데이터 분석가');
+      const finalDuty = r.jobDuty.trim() || (JOB_DEFAULT_DUTIES[finalJob] || '직무 탐구');
+      const finalReason = r.isCustomReason ? (r.customReason.trim() || '직접 탐색') : (r.selectedReason || REASON_OPTIONS[0]);
+      const finalLearn = r.isCustomLearn ? (r.customLearn.trim() || '직접 조사') : (r.selectedLearn || LEARN_OPTIONS[0]);
+
+      const reportText = 
+`나의 진로 탐색 보고서
+진로 경험 점수: ${p.score}점
+게임에서 만난 직업: ${metJobsStr}
+획득한 역량 카드: ${summary.cardsText}
+가장 많이 획득한 역량: ${summary.mostComp}
+오늘의 탐험 칭호: ${summary.title}
+관심 직업: ${finalJob}
+관심 직업 하는 일: ${finalDuty}
+관심이 생긴 이유: ${finalReason}
+더 알아보고 싶은 것: ${finalLearn}`;
+
+      const textArea = document.createElement('textarea');
+      textArea.value = reportText;
+      textArea.style.position = 'fixed';
+      textArea.style.top = '-9999px';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      let copied = false;
+      try {
+        copied = document.execCommand('copy');
+      } catch (e) {
+        console.warn('Copy execCommand failed:', e);
+      }
+      document.body.removeChild(textArea);
+
+      if (copied) {
+        playToneSound('success');
+        showToast(`📋 ${p.name} 님의 진로 탐색 보고서가 복사되었습니다!`);
+      } else {
+        showToast('보고서 텍스트를 선택하여 복사해 주세요.');
+      }
+    };
+
+    document.getElementById('restartGameBtn').onclick = () => {
+      document.getElementById('reportModal').classList.add('hidden');
+      document.getElementById('setupModal').classList.remove('hidden');
+    };
+
+    function renderCharacterSelectors() {
+      const p1Grid = document.getElementById('p1CharGrid');
+      const p2Grid = document.getElementById('p2CharGrid');
+      p1Grid.innerHTML = '';
+      p2Grid.innerHTML = '';
+
+      CHARACTER_PRESETS.forEach(preset => {
+        const btn1 = document.createElement('button');
+        btn1.type = 'button';
+        btn1.className = `char-card-btn p-1.5 rounded-xl border-2 flex flex-col items-center justify-center bg-white border-amber-200 text-stone-800 ${
+          p1SelectedChar.id === preset.id ? 'selected' : ''
+        }`;
+        btn1.innerHTML = `
+          <span class="text-2xl">${preset.icon}</span>
+          <span class="text-[10px] font-bold truncate max-w-[50px] mt-0.5">${preset.name}</span>
+        `;
+        btn1.onclick = () => {
+          p1SelectedChar = preset;
+          document.getElementById('p1CharBadge').textContent = `선택: ${preset.icon} ${preset.name}`;
+          renderCharacterSelectors();
+        };
+        p1Grid.appendChild(btn1);
+
+        const btn2 = document.createElement('button');
+        btn2.type = 'button';
+        btn2.className = `char-card-btn char-card-btn-p2 p-1.5 rounded-xl border-2 flex flex-col items-center justify-center bg-white border-teal-200 text-stone-800 ${
+          p2SelectedChar.id === preset.id ? 'selected' : ''
+        }`;
+        btn2.innerHTML = `
+          <span class="text-2xl">${preset.icon}</span>
+          <span class="text-[10px] font-bold truncate max-w-[50px] mt-0.5">${preset.name}</span>
+        `;
+        btn2.onclick = () => {
+          p2SelectedChar = preset;
+          document.getElementById('p2CharBadge').textContent = `선택: ${preset.icon} ${preset.name}`;
+          renderCharacterSelectors();
+        };
+        p2Grid.appendChild(btn2);
+      });
+    }
+
+    const opt1Player = document.getElementById('opt1Player');
+    const opt2Player = document.getElementById('opt2Player');
+    const setupP2Container = document.getElementById('setupP2Container');
+
+    opt1Player.onclick = () => {
+      gameConfig.playerCount = 1;
+      opt1Player.className = 'py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-100/90 font-bold text-amber-950 shadow-sm transition text-center';
+      opt2Player.className = 'py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center';
+      setupP2Container.classList.add('hidden');
+    };
+
+    opt2Player.onclick = () => {
+      gameConfig.playerCount = 2;
+      opt2Player.className = 'py-2 px-3 rounded-xl border-2 border-teal-600 bg-teal-100/90 font-bold text-teal-950 shadow-sm transition text-center';
+      opt1Player.className = 'py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center';
+      setupP2Container.classList.remove('hidden');
+    };
+
+    const optTrialMode = document.getElementById('optTrialMode');
+    const optGameMode = document.getElementById('optGameMode');
+
+    optTrialMode.onclick = () => {
+      gameConfig.mode = 'trial';
+      gameConfig.maxLaps = 6;
+      optTrialMode.className = 'py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-100/90 font-bold text-amber-950 shadow-sm transition text-center';
+      optGameMode.className = 'py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center';
+    };
+
+    optGameMode.onclick = () => {
+      gameConfig.mode = 'game';
+      gameConfig.maxLaps = 10;
+      optGameMode.className = 'py-2 px-3 rounded-xl border-2 border-amber-600 bg-amber-100/90 font-bold text-amber-950 shadow-sm transition text-center';
+      optTrialMode.className = 'py-2 px-3 rounded-xl border-2 border-stone-300 bg-white font-bold text-stone-700 hover:bg-amber-50 shadow-sm transition text-center';
+    };
+
+    document.getElementById('startAdventureBtn').onclick = () => {
+      const p1Nick = document.getElementById('setupP1Nick').value.trim() || '탐험가1';
+      const p2Nick = document.getElementById('setupP2Nick').value.trim() || '탐험가2';
+
+      players[0].name = p1Nick;
+      players[0].icon = p1SelectedChar.icon;
+      players[0].charName = p1SelectedChar.name;
+      players[0].charDesc = p1SelectedChar.desc;
+
+      players[1].name = p2Nick;
+      players[1].icon = p2SelectedChar.icon;
+      players[1].charName = p2SelectedChar.name;
+      players[1].charDesc = p2SelectedChar.desc;
+
+      players.forEach(p => {
+        p.position = 0;
+        p.score = 0;
+        p.bag = [];
+        p.metJobs = new Set();
+        p.lapsCompleted = 0;
+        p.diceRollsCount = 0;
+      });
+
+      activePlayerIdx = 0;
+      isMoving = false;
+      rollDiceBtn.disabled = false;
+      document.getElementById('gameModeHeaderBadge').textContent = gameConfig.mode === 'trial' ? '체험 모드 (6바퀴)' : '정규 모드 (10바퀴)';
+
+      document.getElementById('setupModal').classList.add('hidden');
+      buildBoard();
+      updateTurnUI();
+      showToast(`${players[0].name} 님과 함께 진로 탐험을 시작합니다!`);
+    };
+
+    document.getElementById('openSetupBtn').onclick = () => {
+      renderCharacterSelectors();
+      document.getElementById('setupModal').classList.remove('hidden');
+    };
+
+    document.getElementById('endGameBtn').onclick = () => {
+      if (scenarioTimerInterval) {
+        clearInterval(scenarioTimerInterval);
+        scenarioTimerInterval = null;
+      }
+      activityModal.classList.add('hidden');
+      showToast('탐험을 종료하고 진로 탐험 보고서를 확인합니다.');
+      openReportModal();
+    };
+
+    document.getElementById('soundToggleBtn').onclick = () => {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+      showToast(soundEnabled ? '효과음이 켜졌습니다.' : '효과음이 꺼졌습니다.');
+    };
+
+    function showToast(msg) {
+      const toast = document.getElementById('toastMessage');
+      toast.textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2000);
+    }
+
+    // Initialize Game on DOM Load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCharacterSelectors();
+      buildBoard();
+    });
+  </script>
+</body>
+</html>
