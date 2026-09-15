@@ -185,7 +185,7 @@ const upgrades=[['✨ MY SPECIAL','special'],['📝 내용 바꾸기','content']
 const specials=[['🚀 순간이동','3칸 앞으로 이동','3칸 앞으로 이동한다.'],['🎲 한 번 더!','주사위 다시 굴리기','주사위를 한 번 더 굴린다.'],['🤝 협력 미션','함께 성공하면 둘 다 +2','친구와 함께 미션을 해결하면 두 플레이어 모두 경험점수 +2를 받는다.'],['🧠 나만의 질문','직접 만든 질문에 답하면 +2','학생이 만든 질문에 답하면 경험점수 +2를 받는다.'],['🔄 직업 교환소','만난 직업 하나 바꾸기','지금까지 만난 직업 하나를 다른 직업으로 바꿔 탐색한다.'],['✏️ 직접 만들기','내 규칙 만들기','custom']];
 const bonus=[['🏆 업적 시스템','특정 조건을 달성하면 배지 받기'],['🎭 캐릭터 말','게임 시작 시 내 말 선택'],['🎲 황금 주사위','특별한 주사위 이벤트'],['🔀 숨겨진 이벤트','특정 칸에서 비밀 이벤트'],['✨ 애니메이션','말 이동이나 점수 효과 강화'],['🃏 NEW CARD','내가 만든 새로운 카드 종류']];
 const $=id=>document.getElementById(id), val=id=>($(id)?.value||'').trim(), setVal=(id,v)=>{if($(id))$(id).value=v||''};
-function openMbti(){window.open('../mbti/','_blank')}
+function openMbti(){window.open('https://shshin078-mirae.github.io/my_career_board_site/mbti','_blank')}
 function save(){document.querySelectorAll('[data-save]').forEach(el=>state[el.id]=el.type==='checkbox'?el.checked:el.value);localStorage.setItem(STORAGE_KEY,JSON.stringify(state));$('saveStatus').textContent='자동 저장됨';setTimeout(()=>$('saveStatus').textContent='이 브라우저에 자동 저장 중',800)}
 function load(){const raw=localStorage.getItem(STORAGE_KEY);if(raw){try{state={...state,...JSON.parse(raw)}}catch(e){}}document.querySelectorAll('[data-save]').forEach(el=>{if(state[el.id]!==undefined){if(el.type==='checkbox')el.checked=!!state[el.id];else el.value=state[el.id]}});renderAll()}
 function resetAll(){if(confirm('활동지의 모든 내용을 지우고 처음부터 시작할까요?')){localStorage.removeItem(STORAGE_KEY);location.reload()}}
