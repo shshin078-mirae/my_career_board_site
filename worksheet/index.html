@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MY CAREER BOARD | 4회차 온라인 활동지</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#1f2937;--muted:#667085;--line:#e5e7eb;--primary:#4f46e5;--soft:#eef2ff;--green:#0f766e;--orange:#b45309;--shadow:0 10px 30px rgba(31,41,55,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;background:linear-gradient(180deg,#f8fafc,#eef2ff);color:var(--text)}button,input,textarea,select{font:inherit}button{cursor:pointer}.wrap{width:min(1060px,calc(100% - 24px));margin:auto;padding:20px 0 70px}header{position:sticky;top:0;z-index:20;background:rgba(248,250,252,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(229,231,235,.9);padding:12px 0;margin-bottom:18px}.head-inner{width:min(1060px,calc(100% - 24px));margin:auto;display:flex;justify-content:space-between;gap:14px;align-items:center}.brand{font-weight:950;font-size:clamp(18px,2.8vw,28px);letter-spacing:-.03em}.saved{font-size:12px;color:var(--muted)}.progress-row{display:flex;gap:6px;margin-top:8px}.dot{width:24px;height:8px;border-radius:999px;background:#d1d5db}.dot.done{background:var(--primary)}.hero,.step{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:clamp(18px,3vw,32px);margin-bottom:16px}.hero h1{margin:0 0 10px;font-size:clamp(32px,6vw,54px);letter-spacing:-.05em}.hero p{margin:0;color:var(--muted);line-height:1.7}.badge{display:inline-flex;padding:7px 11px;border-radius:999px;background:var(--soft);color:var(--primary);font-size:13px;font-weight:900;margin-bottom:10px}.step.locked{display:none}.step h2{font-size:clamp(24px,4.2vw,34px);letter-spacing:-.04em;margin:0 0 8px}.step h3{font-size:19px;margin:22px 0 10px}.desc{color:var(--muted);line-height:1.7;margin:0 0 16px}.notice{padding:14px 16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;color:#7c2d12;line-height:1.55}.goodbox{padding:14px 16px;border-radius:16px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;line-height:1.55}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}label.field{display:block;margin:12px 0}label.field span{display:block;font-weight:800;margin-bottom:7px}input[type=text],input[type=number],textarea,select{width:100%;border:2px solid var(--line);border-radius:14px;background:#fff;padding:13px 14px;color:var(--text);outline:none}textarea{min-height:94px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.1)}.btn{border:0;border-radius:14px;padding:13px 16px;font-weight:900;min-height:48px}.btn.primary{background:var(--primary);color:#fff}.btn.secondary{background:#f3f4f6;color:#111827}.btn.outline{background:#fff;border:2px solid var(--line)}.btn.green{background:var(--green);color:#fff}.btn.small{min-height:38px;padding:8px 12px;font-size:13px}.btn:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.job-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.job-chip{padding:12px;border-radius:14px;background:#f8fafc;border:1px solid var(--line);font-weight:800}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.card-option{border:2px solid var(--line);background:#fff;border-radius:16px;padding:15px;text-align:left;min-height:112px}.card-option.selected{border-color:var(--primary);background:var(--soft)}.card-option strong{display:block;margin-bottom:6px}.card-option small{color:var(--muted);line-height:1.5}.promptbox{background:#111827;color:#f9fafb;border-radius:16px;padding:16px;margin:12px 0;white-space:pre-wrap;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;max-height:360px;overflow:auto}.test-table{width:100%;border-collapse:collapse;margin-top:10px}.test-table th,.test-table td{border:1px solid var(--line);padding:10px;text-align:left}.test-table th{background:#f8fafc}.choice-list{display:grid;gap:8px}.choice-row{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff}.choice-row input{margin-top:4px;transform:scale(1.2)}.game-test-row{display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:16px;align-items:center}.game-test-row>span{min-width:0;line-height:1.55;font-weight:700;white-space:normal}.game-test-row>select{width:100%;min-width:0}.section-divider{height:1px;background:var(--line);margin:24px 0}.complete{display:none;text-align:center;padding:28px;border-radius:20px;background:linear-gradient(135deg,#eef2ff,#ecfdf5);border:1px solid #c7d2fe}.complete.show{display:block}.smallnote{font-size:12px;color:var(--muted);line-height:1.5}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(18px);background:#111827;color:#fff;padding:11px 15px;border-radius:12px;opacity:0;transition:.18s;z-index:99;font-weight:800;max-width:calc(100% - 26px);text-align:center}.toast.show{opacity:1;transform:translateX(-50%)}footer{margin-top:20px;text-align:center;color:var(--muted);font-size:12px}@media(max-width:760px){.grid2,.grid3,.cards,.job-summary{grid-template-columns:1fr}.head-inner{align-items:flex-start;flex-direction:column}.test-table{font-size:13px}.hero,.step{border-radius:18px}}@media(max-width:560px){.game-test-row{grid-template-columns:1fr;gap:8px}.game-test-row>select{width:100%}}
+</style>
+</head>
+<body>
+<header><div class="head-inner"><div><div class="brand">🎲 MY CAREER BOARD</div><div class="saved" id="saveStatus">자동 저장 준비 중</div><div class="progress-row" id="progressDots"></div></div><button class="btn outline small" onclick="resetAll()">처음부터 다시</button></div></header>
+<div class="wrap">
+<section class="hero"><div class="badge">4회차 | 진로 × 게임 × 바이브코딩</div><h1>MBTI에서 출발해<br>나만의 진로 부루마블 만들기</h1><p><b>오늘의 질문:</b> MBTI가 내 직업을 정해줄 수 있을까?<br>AI가 처음 만들어준 결과는 완성작이 아닙니다. 생각하고 → 선택하고 → 만들어보고 → 확인하고 → 고치면서 <b>내 게임</b>으로 만들어갑니다.</p></section>
+
+<section class="step" id="step1"><div class="badge">STEP 1</div><h2>🧭 나의 MBTI에서 출발하기</h2><p class="desc">선생님이 만든 MBTI 진로탐색 앱에서 내 MBTI를 확인하고, 탐색해보고 싶은 직업 3개를 골라보세요.</p><div class="row"><button class="btn primary" onclick="openMbti()">MBTI 진로탐색 앱 열기</button></div><div class="notice" style="margin-top:14px">MBTI는 내 직업을 정해주는 답이 아닙니다. 새로운 직업을 찾아보는 <b>출발 힌트</b>로 사용합니다.</div><label class="field"><span>📋 MBTI 앱에서 복사한 내용을 붙여넣으세요.</span><textarea id="mbtiPaste" placeholder="예) 나의 MBTI: ENFP&#10;MBTI 탐색 직업 3개: 콘텐츠 기획자, 교사, 서비스 기획자"></textarea></label><button class="btn green" onclick="parseMbti()">결과 불러오기</button><div id="mbtiResultBox" style="display:none;margin-top:18px"><div class="goodbox"><b>나의 MBTI:</b> <span id="mbtiOut"></span><br><b>선택한 탐색 직업:</b> <span id="mbtiJobsOut"></span></div></div></section>
+
+<section class="step locked" id="step2"><div class="badge">STEP 2</div><h2>🎴 MY CAREER 6 완성하기</h2><p class="desc">MBTI에서 찾은 직업 3개에, 내가 원래 관심 있던 직업 2개와 미래 변화 직업 1개를 더해 내 게임의 직업 6개를 완성합니다.</p><h3>🧭 MBTI 탐색 직업 3개</h3><div class="job-summary" id="mbtiJobsReadonly"></div><h3>❤️ 내가 원래 관심 있던 직업 2개</h3><div class="grid2"><label class="field"><span>관심 직업 1</span><input type="text" id="myJob1" data-save></label><label class="field"><span>관심 직업 2</span><input type="text" id="myJob2" data-save></label></div><h3>🚀 미래 변화 직업 1개</h3><p class="desc">미래직업이 꼭 IT 직업이라는 뜻은 아니에요. 사회와 생활이 변하면서 여러 분야에서 새로운 역할이 커지고 있습니다.</p><div class="cards" id="futureCards"></div><div class="section-divider"></div><h3>🎴 MY CAREER 6</h3><div class="job-summary" id="career6Box"></div><label class="field"><span>⭐ 지금 가장 궁금한 직업 하나</span><select id="firstFavoriteJob" data-save><option value="">직업 6개를 먼저 완성하세요.</option></select></label><button class="btn primary" onclick="completeStep2()">MY CAREER 6 완성</button></section>
+
+<section class="step locked" id="step3"><div class="badge">STEP 3</div><h2>🎨 내 게임 스타일 정하기</h2><p class="desc">아직 특별한 규칙까지 생각하지 않아도 됩니다. 먼저 게임의 제목과 분위기만 정해봅시다.</p><label class="field"><span>게임 제목</span><input type="text" id="gameTitle" data-save placeholder="예) JOB QUEST, 미래 직업 원정대"></label><h3>게임 분위기</h3><div class="cards" id="themeCards"></div><label class="field" id="customThemeWrap" style="display:none"><span>직접 입력한 분위기</span><input type="text" id="customTheme" data-save></label><div class="notice" style="margin-top:14px">특별한 칸이나 재미있는 규칙은 <b>게임을 먼저 해본 뒤</b> 만들 거예요.</div><button class="btn primary" style="margin-top:14px" onclick="completeStep3()">게임 스타일 확정</button></section>
+
+<section class="step locked" id="step4"><div class="badge">STEP 4</div><h2>🎲 VERSION 1 만들기</h2><p class="desc">이번에는 완성된 게임을 만들지 않습니다. <b>게임판 → 주사위 → 말 이동</b>이 제대로 되는지 먼저 확인합니다.</p><table class="test-table"><tr><th>칸 종류</th><th>개수</th></tr><tr><td>🚩 시작</td><td>1</td></tr><tr><td>💼 직업탐험</td><td>6</td></tr><tr><td>💬 나를 알아보기</td><td>4</td></tr><tr><td>🧩 직업 상황 해결</td><td>4</td></tr><tr><td>💪 역량 획득</td><td>3</td></tr><tr><td>🎁 진로 찬스</td><td>3</td></tr><tr><td>⚡ 진로 위기</td><td>2</td></tr><tr><td>🌟 직업 융합</td><td>1</td></tr></table><h3>🤖 기본 게임 제작 프롬프트</h3><div class="promptbox" id="promptBase"></div><button class="btn green" onclick="copyPrompt('promptBase','baseCopied')">프롬프트 복사</button><h3>🧪 VERSION 1 TEST</h3><p class="desc">게임이 보인다고 바로 다음으로 가지 마세요. 주사위를 실제로 3번 굴려봅니다.</p><table class="test-table"><tr><th>테스트</th><th>나온 숫자</th><th>말이 제대로 이동했나요?</th></tr><tr><td>1회</td><td><input type="number" min="1" max="6" id="dice1" data-save></td><td><select id="move1" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></td></tr><tr><td>2회</td><td><input type="number" min="1" max="6" id="dice2" data-save></td><td><select id="move2" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></td></tr><tr><td>3회</td><td><input type="number" min="1" max="6" id="dice3" data-save></td><td><select id="move3" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></td></tr></table><div id="baseBugWrap" style="display:none"><label class="field"><span>🔧 어떤 문제가 있었나요?</span><textarea id="basicBug" data-save></textarea></label><div class="promptbox" id="promptBaseFix"></div><button class="btn green" onclick="copyPrompt('promptBaseFix','baseFixCopied')">수정 프롬프트 복사</button><label class="choice-row" style="margin-top:10px"><input type="checkbox" id="baseRetest" data-save><div><b>수정 후 다시 테스트했고 정상 작동합니다.</b></div></label></div><button class="btn primary" style="margin-top:14px" onclick="completeStep4()">테스트 완료</button></section>
+
+<section class="step locked" id="step5"><div class="badge">STEP 5</div><h2>🧩 게임 속 진로 콘텐츠 만들기</h2><p class="desc">AI가 아이디어를 줄 수 있지만, <b>무엇을 게임에 넣을지는 내가 선택합니다.</b></p><h3>5-A. 직업 상황 해결 카드</h3><div class="promptbox" id="promptSituation"></div><button class="btn green" onclick="copyPrompt('promptSituation','situationCopied')">상황 아이디어 요청 프롬프트 복사</button><div class="grid2" style="margin-top:12px"><label class="field"><span>상황 1</span><textarea id="sit1" data-save></textarea></label><label class="field"><span>상황 2</span><textarea id="sit2" data-save></textarea></label><label class="field"><span>상황 3</span><textarea id="sit3" data-save></textarea></label><label class="field"><span>상황 4</span><textarea id="sit4" data-save></textarea></label></div><div class="notice"><b>✏️ 그대로 쓰지 말고 하나는 내 방식으로 바꿔봅시다.</b></div><div class="grid2"><label class="field"><span>AI가 제안한 원래 문장</span><textarea id="originalSituation" data-save></textarea></label><label class="field"><span>내가 바꾼 문장</span><textarea id="editedSituation" data-save></textarea></label></div><h3>5-B. 나를 알아보기 질문 4개 선택</h3><p class="desc">아래 8개 중 내 게임에 넣을 질문을 정확히 4개 선택하세요.</p><div class="choice-list" id="careerQuestions"></div><div class="section-divider"></div><h3>🤖 진로 활동 기능 추가 프롬프트</h3><div class="promptbox" id="promptContent"></div><button class="btn green" onclick="copyPrompt('promptContent','contentCopied')">진로 기능 프롬프트 복사</button><button class="btn primary" style="margin-top:12px" onclick="completeStep5()">진로 콘텐츠 준비 완료</button></section>
+
+<section class="step locked" id="step6">
+<div class="badge">STEP 6</div>
+<h2>👥 게임 완성 + 진로 탐색 보고서</h2>
+<p class="desc">먼저 1~2인 게임이 제대로 작동하는지 확인하고, 게임이 끝났을 때 <b>나만의 진로 탐색 보고서</b>가 나오도록 완성합니다.</p>
+
+<h3>STEP 6-A. 1~2인 게임 완성하기</h3>
+<div class="promptbox" id="promptMultiplayer"></div>
+<button class="btn green" onclick="copyPrompt('promptMultiplayer','multiCopied')">1~2인 게임 프롬프트 복사</button>
+
+<h3>🧪 GAME TEST</h3>
+<div class="choice-list">
+<label class="choice-row game-test-row"><span>A가 활동한 뒤 B 차례가 되는가?</span><select id="gt1" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>두 사람의 점수가 따로 기록되는가?</span><select id="gt2" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>역량 카드가 각자 저장되는가?</span><select id="gt3" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>활동 후 다시 주사위를 굴릴 수 있는가?</span><select id="gt4" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+</div>
+
+<div id="gameBugWrap" style="display:none">
+<label class="field"><span>🔧 어떤 문제가 있었나요?</span><textarea id="gameBug" data-save></textarea></label>
+<div class="promptbox" id="promptGameFix"></div>
+<button class="btn green" onclick="copyPrompt('promptGameFix','gameFixCopied')">게임 오류 수정 프롬프트 복사</button>
+<label class="choice-row" style="margin-top:10px"><input type="checkbox" id="gameRetest" data-save><div><b>수정 후 다시 테스트했고 정상 작동합니다.</b></div></label>
+</div>
+
+<div class="section-divider"></div>
+
+<h3>STEP 6-B. 📊 나만의 진로 탐색 보고서 추가하기</h3>
+<p class="desc">게임이 끝났을 때 점수만 보여주지 않고, <b>어떤 직업과 역량을 만났는지 돌아보는 결과 화면</b>을 추가합니다.</p>
+<div class="notice">게임이 나에게 맞는 직업을 판정하는 것이 아닙니다. 게임은 <b>오늘의 기록</b>을 보여주고, 어떤 직업이 더 궁금한지는 내가 직접 선택합니다.</div>
+
+<div class="promptbox" id="promptCareerReport"></div>
+<button class="btn green" onclick="copyPrompt('promptCareerReport','reportCopied')">진로 탐색 보고서 프롬프트 복사</button>
+
+<h3>🧪 보고서 기능 확인</h3>
+<div class="choice-list">
+<label class="choice-row game-test-row"><span>게임 종료 버튼이 있고 정상적으로 종료되는가?</span><select id="rt1" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>종료 후 경험 점수·역량·만난 직업이 표시되는가?</span><select id="rt2" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>가장 많이 얻은 역량과 오늘의 탐험 칭호가 표시되는가?</span><select id="rt3" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>더 궁금해진 직업과 이유를 선택할 수 있는가?</span><select id="rt4" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>앞으로 더 알아보고 싶은 내용을 선택할 수 있는가?</span><select id="rt5" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+<label class="choice-row game-test-row"><span>‘내 진로 탐색 보고서 복사’ 버튼이 작동하는가?</span><select id="rt6" data-save><option value="">선택</option><option>예</option><option>아니오</option></select></label>
+</div>
+
+<div id="reportBugWrap" style="display:none">
+<label class="field"><span>🔧 보고서 기능에서 어떤 문제가 있었나요?</span><textarea id="reportBug" data-save></textarea></label>
+<div class="promptbox" id="promptReportFix"></div>
+<button class="btn green" onclick="copyPrompt('promptReportFix','reportFixCopied')">보고서 오류 수정 프롬프트 복사</button>
+<label class="choice-row" style="margin-top:10px"><input type="checkbox" id="reportRetest" data-save><div><b>수정 후 다시 테스트했고 정상 작동합니다.</b></div></label>
+</div>
+
+<button class="btn primary" style="margin-top:14px" onclick="completeStep6()">STEP 6 완료</button>
+</section>
+
+<section class="step locked" id="step7"><div class="badge">STEP 7</div><h2>✨ MY UPGRADE</h2><p class="desc">게임을 직접 해봤으니 이제 바꿀 준비가 됐습니다. <b>무엇을 더하면 재미있을지, 무엇을 내 스타일로 바꾸고 싶은지</b> 정해보세요.</p><h3>업그레이드 방법 선택</h3><div class="cards" id="upgradeCards"></div><div id="specialWrap" style="display:none"><h3>✨ MY SPECIAL 칸</h3><p class="desc">기존 진로 찬스 3칸 중 1칸을 나만의 특별한 칸으로 바꿉니다.</p><div class="cards" id="specialCards"></div><div id="customSpecialWrap" style="display:none" class="grid2"><label class="field"><span>특별칸 이름</span><input type="text" id="specialName" data-save></label><label class="field"><span>어떤 일이 일어나나요?</span><input type="text" id="specialRule" data-save></label></div></div><h3>MY UPGRADE 기록</h3><label class="field"><span>① 지금은 어떻게 되어 있나요?</span><textarea id="beforeChange" data-save></textarea></label><label class="field"><span>② 나는 어떻게 바꾸고 싶나요?</span><textarea id="wantedChange" data-save></textarea></label><div class="promptbox" id="promptUpgrade"></div><button class="btn green" onclick="copyPrompt('promptUpgrade','upgradeCopied')">수정 프롬프트 복사</button><label class="field"><span>③ 실제로 어떻게 달라졌나요?</span><textarea id="afterChange" data-save></textarea></label><button class="btn primary" onclick="completeStep7()">MY UPGRADE 완료</button></section>
+
+<section class="step locked" id="step8"><div class="badge">STEP 8</div><h2>🎮 친구의 게임에 도전!</h2><p class="desc">설명을 길게 하지 말고, 친구가 먼저 직접 플레이해보게 하세요. 서로 체험 모드 6턴 정도 플레이합니다.</p><label class="field"><span>🎲 가장 재미있었던 칸은?</span><input type="text" id="friendFun" data-save></label><label class="field"><span>👍 좋았던 점은?</span><input type="text" id="friendGood" data-save></label><label class="field"><span>🔧 한 가지 더 바꾼다면?</span><input type="text" id="friendSuggestion" data-save></label><label class="field"><span>👀 친구의 MY UPGRADE가 실제 게임에서 보였나요?</span><select id="upgradeSeen" data-save><option value="">선택</option><option>찾았어요</option><option>잘 모르겠어요</option></select></label><div id="upgradeSeenMsg" class="notice" style="display:none">친구에게 변화가 잘 보이지 않았다면, 어떤 부분을 더 분명하게 보여줄지 한번 생각해보세요.</div><button class="btn primary" onclick="completeStep8()">친구 플레이 완료</button></section>
+
+<section class="step locked" id="finalStep">
+<div class="badge">FINAL</div>
+<h2>🧭 나만의 진로 탐색 보고서</h2>
+<p class="desc">게임은 끝났지만 진로 탐험은 여기서 끝이 아닙니다. 게임 종료 화면의 <b>‘내 진로 탐색 보고서 복사’</b> 버튼을 눌러 아래에 붙여넣으세요.</p>
+
+<h3>1. 📋 게임 보고서 가져오기</h3>
+<label class="field"><span>게임에서 복사한 보고서 붙여넣기</span><textarea id="careerReportPaste" data-save placeholder="나의 진로 탐색 보고서&#10;진로 경험 점수: ...&#10;게임에서 만난 직업: ..."></textarea></label>
+<button class="btn green" onclick="parseCareerReport()">보고서 불러오기</button>
+
+<div id="careerReportBox" style="display:none;margin-top:16px">
+<div class="goodbox">
+<b>🎮 진로 경험 점수:</b> <span id="reportScore"></span><br>
+<b>💼 게임에서 만난 직업:</b> <span id="reportMetJobs"></span><br>
+<b>💪 가장 많이 획득한 역량:</b> <span id="reportTopSkill"></span><br>
+<b>🏷️ 오늘의 탐험 칭호:</b> <span id="reportTitle"></span><br>
+<b>⭐ 더 궁금해진 직업:</b> <span id="reportInterestJob"></span>
+</div>
+</div>
+
+<h3>2. 🔎 게임 전과 후 비교하기</h3>
+<div class="goodbox" id="favoriteCompare"></div>
+<div id="interestChangeNote" class="smallnote" style="margin-top:8px"></div>
+
+<h3>3. ❤️ 왜 이 직업이 궁금해졌을까?</h3>
+<div class="goodbox" id="interestReasonBox">게임 보고서를 먼저 불러오세요.</div>
+<label class="field"><span>이 이유가 나의 관심이나 경험과 어떻게 연결되나요?</span>
+<textarea id="personalConnection" data-save placeholder="예) 친구들과 아이디어 만들기를 좋아함 / 게임 만드는 것을 좋아함 / 사람을 돕는 일에 관심이 있음"></textarea></label>
+
+<h3>4. 🔭 앞으로 더 알아볼 것</h3>
+<div class="goodbox" id="learnMoreBox">게임 보고서를 먼저 불러오세요.</div>
+<label class="field"><span>다음에 정말 알아본다면 어떻게 찾아볼까요?</span>
+<select id="nextAction" data-save>
+<option value="">하나 선택하세요.</option>
+<option>검색해서 찾아보기</option>
+<option>관련 학과 알아보기</option>
+<option>관련 영상 찾아보기</option>
+<option>그 일을 하는 사람의 이야기 찾아보기</option>
+<option>체험 프로그램 찾아보기</option>
+<option>선생님이나 가족에게 물어보기</option>
+</select>
+</label>
+
+<h3>5. 💪 오늘 만난 역량 돌아보기</h3>
+<div class="goodbox" id="skillBox">게임 보고서를 먼저 불러오세요.</div>
+<label class="field"><span>이 역량은 실제 나에게도 중요하다고 생각하나요?</span>
+<select id="skillImportance" data-save>
+<option value="">선택하세요.</option>
+<option>매우 중요하다</option>
+<option>중요하다</option>
+<option>아직 잘 모르겠다</option>
+</select>
+</label>
+<label class="field"><span>이 역량을 어디에서 더 길러볼 수 있을까요? <small style="font-weight:400;color:var(--muted)">(선택)</small></span>
+<input type="text" id="skillAction" data-save placeholder="예) 모둠 활동, 동아리, 프로젝트 활동">
+</label>
+
+<h3>6. 🧭 처음 질문으로 돌아가기</h3>
+<p class="desc"><b>MBTI가 내 직업을 정해줄 수 있을까?</b></p>
+<select id="mbtiReflectionChoice" data-save>
+<option value="">내 생각 선택</option>
+<option>직업을 정해주는 것은 아니라고 생각한다.</option>
+<option>진로를 탐색할 때 어느 정도 참고할 수 있다고 생각한다.</option>
+<option>다른 생각이 있다.</option>
+</select>
+<label class="field"><span>왜 그렇게 생각했나요?</span><textarea id="mbtiReflection" data-save></textarea></label>
+
+<h3>7. 🎤 나의 30초 진로 이야기</h3>
+<p class="desc">앞에서 정리한 내용을 이용해 발표문이 자동으로 만들어집니다.</p>
+<div class="promptbox" id="careerTalk">게임 보고서를 불러오고 생각을 적으면 여기에 발표문이 만들어집니다.</div>
+<button class="btn green" onclick="copyCareerTalk()">발표문 복사</button>
+
+<button class="btn primary" style="margin-top:16px" onclick="completeFinal()">FINAL 완료</button>
+
+<div id="recordExportBox" style="display:none;margin-top:20px">
+  <div class="section-divider"></div>
+  <h3>8. 🎁 나의 진로탐험 기록 가져가기</h3>
+  <p class="desc">오늘 작성한 활동 내용을 한 장의 <b>진로탐험 기록 HTML</b>로 저장할 수 있어요. 저장한 파일은 인터넷이 없어도 브라우저에서 다시 열 수 있습니다.</p>
+  <div class="row">
+    <a id="careerRecordDownloadLink" class="btn green" href="#" download onclick="return ensureCareerRecordLink(event)" style="display:inline-flex;align-items:center;text-decoration:none">📥 나의 진로탐험 기록 HTML 저장</a>
+    <button class="btn outline" onclick="openCareerRecordPreview()">👀 저장 전 미리보기</button>
+  </div>
+  <p class="smallnote" style="margin-top:8px">저장 버튼은 브라우저의 실제 다운로드 링크로 작동합니다. 파일에는 실제 이름 대신 활동지에 작성한 내용만 들어갑니다.</p>
+</div>
+
+<div class="complete" id="completeBox">
+<h2>🎉 MY CAREER BOARD COMPLETE!</h2>
+<p>게임이 내 진로를 정해준 것이 아닙니다.<br><b>직업을 고르고, 경험을 돌아보고, 다음에 무엇을 더 알아볼지 결정한 사람은 나입니다.</b></p>
+</div>
+</section>
+
+<section class="step locked" id="bonusStep"><div class="badge">BONUS | GAME DESIGNER MODE</div><h2>🚀 더 만들고 싶은 사람만!</h2><p class="desc">기본 게임을 완성했다면 이제 게임 디자이너 모드입니다. 하나만 골라도 충분합니다.</p><div class="cards" id="bonusCards"></div><div class="promptbox" id="promptBonus"></div><button class="btn green" onclick="copyPrompt('promptBonus','bonusCopied')">BONUS 프롬프트 복사</button></section>
+<footer>자동 저장은 현재 브라우저·기기에만 저장됩니다. 공용 태블릿에서는 개인정보를 입력하지 마세요.</footer>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const STORAGE_KEY='myCareerBoardWorksheetV3';
+let state={unlocked:1,mbti:'',mbtiJobs:[],futureJob:'',theme:'',upgradeType:'',specialName:'',specialRule:'',selectedQuestions:[],flags:{},reportData:{}};
+const futureJobs=[['🤖 기술','AI 서비스 기획자','AI를 이용해 새로운 서비스와 기능을 기획해요.'],['🚗 교통','스마트모빌리티 전문가','자율주행과 미래 교통 시스템을 만들어요.'],['🌏 환경','기후테크 전문가','새로운 기술과 아이디어로 기후·에너지 문제를 해결해요.'],['♻️ 자원','순환경제 전문가','버려지는 자원을 다시 사용할 방법을 만들어요.'],['🩺 건강','디지털 헬스케어 기획자','기술을 활용한 새로운 건강·의료 서비스를 기획해요.'],['👵 복지','고령친화 서비스 기획자','고령사회에 필요한 생활·돌봄 서비스를 만들어요.'],['🌱 농업','스마트농업 전문가','센서와 자동화를 활용해 새로운 농업 방식을 만들어요.'],['🍽️ 식품','푸드테크 기획자','새로운 식품·조리·외식 서비스를 기획해요.'],['🎭 문화','문화콘텐츠 IP 기획자','캐릭터·웹툰·이야기를 다양한 콘텐츠로 발전시켜요.'],['🌍 관광','지역관광 콘텐츠 기획자','지역의 장소와 문화를 새로운 여행 경험으로 만들어요.'],['👗 패션','지속가능 패션 기획자','환경과 자원을 고려한 새로운 패션을 기획해요.'],['🏠 공간','미래주거·공간 기획자','미래의 생활 방식에 맞는 집과 공간을 기획해요.']];
+const themes=[['🌌 우주','우주'],['🏙️ 미래도시','미래도시'],['🎮 게임월드','게임월드'],['🗺️ 모험지도','모험지도'],['🌈 밝고 귀여움','밝고 귀여운 스타일'],['✏️ 직접 입력','custom']];
+const questions=['시간 가는 줄 모르고 하는 활동은 무엇인가요?','친구들이 말하는 나의 장점은 무엇인가요?','좋아하는 학교 과목과 그 이유는 무엇인가요?','혼자 하는 활동과 함께하는 활동 중 어느 쪽이 더 편한가요?','실패해도 한번 도전해보고 싶은 일은 무엇인가요?','해결해보고 싶은 생활·사회 문제가 있나요?','직업을 고를 때 가장 중요하게 생각하는 것은 무엇인가요?','앞으로 새롭게 배워보고 싶은 것은 무엇인가요?'];
+const upgrades=[['✨ MY SPECIAL','special'],['📝 내용 바꾸기','content'],['🎮 게임 규칙 바꾸기','game'],['🎨 디자인 바꾸기','design']];
+const specials=[['🚀 순간이동','3칸 앞으로 이동','3칸 앞으로 이동한다.'],['🎲 한 번 더!','주사위 다시 굴리기','주사위를 한 번 더 굴린다.'],['🤝 협력 미션','함께 성공하면 둘 다 +2','친구와 함께 미션을 해결하면 두 플레이어 모두 경험점수 +2를 받는다.'],['🧠 나만의 질문','직접 만든 질문에 답하면 +2','학생이 만든 질문에 답하면 경험점수 +2를 받는다.'],['🔄 직업 교환소','만난 직업 하나 바꾸기','지금까지 만난 직업 하나를 다른 직업으로 바꿔 탐색한다.'],['✏️ 직접 만들기','내 규칙 만들기','custom']];
+const bonus=[['🏆 업적 시스템','특정 조건을 달성하면 배지 받기'],['🎭 캐릭터 말','게임 시작 시 내 말 선택'],['🎲 황금 주사위','특별한 주사위 이벤트'],['🔀 숨겨진 이벤트','특정 칸에서 비밀 이벤트'],['✨ 애니메이션','말 이동이나 점수 효과 강화'],['🃏 NEW CARD','내가 만든 새로운 카드 종류']];
+const $=id=>document.getElementById(id), val=id=>($(id)?.value||'').trim(), setVal=(id,v)=>{if($(id))$(id).value=v||''};
+function openMbti(){window.open('../mbti/','_blank')}
+function save(){document.querySelectorAll('[data-save]').forEach(el=>state[el.id]=el.type==='checkbox'?el.checked:el.value);localStorage.setItem(STORAGE_KEY,JSON.stringify(state));$('saveStatus').textContent='자동 저장됨';setTimeout(()=>$('saveStatus').textContent='이 브라우저에 자동 저장 중',800)}
+function load(){const raw=localStorage.getItem(STORAGE_KEY);if(raw){try{state={...state,...JSON.parse(raw)}}catch(e){}}document.querySelectorAll('[data-save]').forEach(el=>{if(state[el.id]!==undefined){if(el.type==='checkbox')el.checked=!!state[el.id];else el.value=state[el.id]}});renderAll()}
+function resetAll(){if(confirm('활동지의 모든 내용을 지우고 처음부터 시작할까요?')){localStorage.removeItem(STORAGE_KEY);location.reload()}}
+function unlock(n){state.unlocked=Math.max(state.unlocked,n);save();renderUnlocks();renderProgress();const id=n<=8?'step'+n:n===9?'finalStep':'bonusStep';setTimeout(()=>$(id)?.scrollIntoView({behavior:'smooth',block:'start'}),100)}
+function renderUnlocks(){for(let i=1;i<=8;i++)$('step'+i).classList.toggle('locked',i>state.unlocked);$('finalStep').classList.toggle('locked',state.unlocked<9);$('bonusStep').classList.toggle('locked',state.unlocked<10)}
+function renderProgress(){const d=$('progressDots');d.innerHTML='';for(let i=1;i<=9;i++){const x=document.createElement('div');x.className='dot'+(i<=state.unlocked?' done':'');d.appendChild(x)}}
+function parseMbti(){const text=val('mbtiPaste'),m=text.match(/\b([EI][SN][TF][JP])\b/i),line=text.match(/MBTI\s*탐색\s*직업\s*3개\s*:\s*(.+)/i);if(!m||!line){toast('복사한 MBTI 결과 형식을 확인해주세요.');return}const jobs=line[1].split(/[,，]/).map(s=>s.trim()).filter(Boolean).slice(0,3);if(jobs.length!==3){toast('직업 3개를 찾지 못했어요.');return}state.mbti=m[1].toUpperCase();state.mbtiJobs=jobs;save();renderMbti();unlock(2);toast('MBTI 결과를 불러왔어요!')}
+function renderMbti(){if(state.mbti&&state.mbtiJobs.length===3){$('mbtiResultBox').style.display='';$('mbtiOut').textContent=state.mbti;$('mbtiJobsOut').textContent=state.mbtiJobs.join(' · ');$('mbtiJobsReadonly').innerHTML=state.mbtiJobs.map(j=>`<div class="job-chip">${j}</div>`).join('')}renderCareer6()}
+function selectFuture(name,btn){state.futureJob=name;save();document.querySelectorAll('#futureCards .card-option').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');renderCareer6()}
+function getCareer6(){return [...state.mbtiJobs,val('myJob1'),val('myJob2'),state.futureJob].filter(Boolean)}
+function renderCareer6(){const arr=getCareer6();$('career6Box').innerHTML=arr.length?arr.map(j=>`<div class="job-chip">${j}</div>`).join(''):'<div class="smallnote">직업 6개를 완성하면 여기에 표시됩니다.</div>';const sel=$('firstFavoriteJob'),cur=sel.value||state.firstFavoriteJob||'';sel.innerHTML='<option value="">하나 선택하세요.</option>'+arr.map(j=>`<option>${j}</option>`).join('');if(arr.includes(cur))sel.value=cur;updatePrompts()}
+function completeStep2(){const arr=getCareer6();if(arr.length!==6||!val('myJob1')||!val('myJob2')||!state.futureJob||!val('firstFavoriteJob')){toast('직업 6개와 가장 궁금한 직업을 모두 완성해주세요.');return}state.firstFavoriteJob=val('firstFavoriteJob');save();unlock(3)}
+function selectTheme(value,btn){state.theme=value;save();document.querySelectorAll('#themeCards .card-option').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');$('customThemeWrap').style.display=value==='custom'?'':'none';updatePrompts()}
+function actualTheme(){return state.theme==='custom'?val('customTheme'):state.theme}
+function completeStep3(){if(!val('gameTitle')||!actualTheme()){toast('게임 제목과 분위기를 정해주세요.');return}save();updatePrompts();unlock(4)}
+function baseHasNo(){return ['move1','move2','move3'].some(id=>val(id)==='아니오')}
+function syncBaseBug(){$('baseBugWrap').style.display=baseHasNo()?'':'none';updatePrompts()}
+function completeStep4(){const nums=['dice1','dice2','dice3'].map(id=>Number(val(id))),moves=['move1','move2','move3'].map(val);if(nums.some(n=>!(n>=1&&n<=6))||moves.some(x=>!x)){toast('주사위 3회 테스트를 모두 기록해주세요.');return}if(baseHasNo()&&(!val('basicBug')||!$('baseRetest').checked)){toast('문제를 적고 수정 후 재테스트까지 완료해주세요.');return}unlock(5)}
+function toggleQuestion(i,checked){if(checked){if(state.selectedQuestions.length>=4){$('q_'+i).checked=false;toast('질문은 4개만 선택할 수 있어요.');return}if(!state.selectedQuestions.includes(i))state.selectedQuestions.push(i)}else state.selectedQuestions=state.selectedQuestions.filter(x=>x!==i);save();updatePrompts()}
+function completeStep5(){const sits=['sit1','sit2','sit3','sit4'].map(val);if(sits.some(x=>!x)||!val('originalSituation')||!val('editedSituation')){toast('상황 4개와 수정 전·후 문장을 모두 작성해주세요.');return}if(state.selectedQuestions.length!==4){toast('나를 알아보기 질문을 정확히 4개 선택해주세요.');return}if(!state.flags?.contentCopied){toast('진로 기능 프롬프트를 복사한 뒤 진행해주세요.');return}unlock(6)}
+function gameHasNo(){return ['gt1','gt2','gt3','gt4'].some(id=>val(id)==='아니오')}
+function reportHasNo(){return ['rt1','rt2','rt3','rt4','rt5','rt6'].some(id=>val(id)==='아니오')}
+function syncGameBug(){
+  $('gameBugWrap').style.display=gameHasNo()?'':'none';
+  $('reportBugWrap').style.display=reportHasNo()?'':'none';
+  updatePrompts();
+}
+function completeStep6(){
+  const gameTests=['gt1','gt2','gt3','gt4'].map(val);
+  const reportTests=['rt1','rt2','rt3','rt4','rt5','rt6'].map(val);
+  if(gameTests.some(x=>!x)){toast('GAME TEST 4개를 모두 확인해주세요.');return}
+  if(gameHasNo()&&(!val('gameBug')||!$('gameRetest').checked)){toast('게임 문제를 적고 수정 후 재테스트까지 완료해주세요.');return}
+  if(!state.flags?.reportCopied){toast('진로 탐색 보고서 프롬프트를 복사해 게임에 추가해주세요.');return}
+  if(reportTests.some(x=>!x)){toast('보고서 기능 확인 6개를 모두 테스트해주세요.');return}
+  if(reportHasNo()&&(!val('reportBug')||!$('reportRetest').checked)){toast('보고서 문제를 적고 수정 후 재테스트까지 완료해주세요.');return}
+  unlock(7)
+}
+function selectUpgrade(type,btn){state.upgradeType=type;save();document.querySelectorAll('#upgradeCards .card-option').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');$('specialWrap').style.display=type==='special'?'':'none';updatePrompts()}
+function selectSpecial(name,rule,btn){state.specialName=name;state.specialRule=rule;save();document.querySelectorAll('#specialCards .card-option').forEach(x=>x.classList.remove('selected'));btn.classList.add('selected');$('customSpecialWrap').style.display=rule==='custom'?'':'none';if(rule!=='custom'){setVal('specialName',name);setVal('specialRule',rule);save()}updatePrompts()}
+function actualSpecialName(){return val('specialName')||state.specialName}function actualSpecialRule(){return val('specialRule')||(state.specialRule==='custom'?'':state.specialRule)}
+function completeStep7(){if(!state.upgradeType){toast('업그레이드 방법을 선택해주세요.');return}if(state.upgradeType==='special'&&(!actualSpecialName()||!actualSpecialRule())){toast('MY SPECIAL 이름과 규칙을 정해주세요.');return}if(!val('beforeChange')||!val('wantedChange')||!val('afterChange')){toast('수정 전·원하는 변화·수정 후를 모두 기록해주세요.');return}if(!state.flags?.upgradeCopied){toast('수정 프롬프트를 복사해 Gemini에서 적용해주세요.');return}unlock(8)}
+function completeStep8(){
+  if(!val('friendFun')||!val('friendGood')||!val('friendSuggestion')||!val('upgradeSeen')){toast('친구 피드백을 모두 작성해주세요.');return}
+  unlock(9);renderFinalReport()
+}
+function extractReportLine(text,label){
+  const esc=label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const m=text.match(new RegExp('^'+esc+'\\s*:\\s*(.*)$','mi'));
+  return m?m[1].trim():'';
+}
+function parseCareerReport(){
+  const text=val('careerReportPaste');
+  if(!text){toast('게임에서 복사한 진로 탐색 보고서를 붙여넣어주세요.');return}
+  const data={
+    score:extractReportLine(text,'진로 경험 점수'),
+    metJobs:extractReportLine(text,'게임에서 만난 직업'),
+    skillCards:extractReportLine(text,'획득한 역량 카드'),
+    topSkill:extractReportLine(text,'가장 많이 획득한 역량'),
+    title:extractReportLine(text,'오늘의 탐험 칭호'),
+    interestJob:extractReportLine(text,'관심 직업'),
+    jobWork:extractReportLine(text,'관심 직업 하는 일'),
+    reason:extractReportLine(text,'관심이 생긴 이유'),
+    learnMore:extractReportLine(text,'더 알아보고 싶은 것')
+  };
+  const required=['score','metJobs','topSkill','title','interestJob','reason','learnMore'];
+  if(required.some(k=>!data[k])){
+    toast('보고서 형식을 모두 읽지 못했어요. 게임의 ‘내 진로 탐색 보고서 복사’ 버튼으로 다시 복사해보세요.');
+    return;
+  }
+  state.reportData=data;save();renderFinalReport();toast('게임 보고서를 불러왔어요!');
+}
+function renderFinalReport(){
+  const d=state.reportData||{};
+  const ready=d.interestJob;
+  $('careerReportBox').style.display=ready?'':'none';
+  if(ready){
+    $('reportScore').textContent=d.score||'-';
+    $('reportMetJobs').textContent=d.metJobs||'-';
+    $('reportTopSkill').textContent=d.topSkill||'-';
+    $('reportTitle').textContent=d.title||'-';
+    $('reportInterestJob').textContent=d.interestJob||'-';
+    $('interestReasonBox').innerHTML='<b>게임에서 선택한 이유:</b> '+(d.reason||'-');
+    $('learnMoreBox').innerHTML='<b>더 알아보고 싶은 것:</b> '+(d.learnMore||'-');
+    $('skillBox').innerHTML='<b>게임에서 가장 많이 얻은 역량:</b> '+(d.topSkill||'-');
+  }else{
+    $('interestReasonBox').textContent='게임 보고서를 먼저 불러오세요.';
+    $('learnMoreBox').textContent='게임 보고서를 먼저 불러오세요.';
+    $('skillBox').textContent='게임 보고서를 먼저 불러오세요.';
+  }
+  renderFinalCompare();
+  renderCareerTalk();
+}
+function renderFinalCompare(){
+  const after=(state.reportData||{}).interestJob||'아직 보고서를 불러오지 않았어요';
+  const before=state.firstFavoriteJob||'-';
+  $('favoriteCompare').innerHTML=`<b>게임을 만들기 전 가장 궁금했던 직업:</b> ${before}<br><b>게임을 해본 뒤 더 궁금해진 직업:</b> ${after}`;
+  if((state.reportData||{}).interestJob){
+    $('interestChangeNote').textContent=before===after?'처음 관심 있던 직업이 게임 후에도 계속 궁금했네요.':'관심 직업이 달라졌네요. 게임을 하며 관심이 바뀌는 것도 좋은 진로 탐색입니다.';
+  }else $('interestChangeNote').textContent='';
+}
+function renderCareerTalk(){
+  const d=state.reportData||{};
+  if(!d.interestJob){$('careerTalk').textContent='게임 보고서를 불러오고 생각을 적으면 여기에 발표문이 만들어집니다.';return}
+  const work=d.jobWork||'아직 더 알아보고 싶은 내용';
+  const connection=val('personalConnection')||'나의 관심과 연결되는 점이 있음';
+  const learn=d.learnMore||'이 직업에 대해';
+  $('careerTalk').textContent=`제가 관심을 갖게 된 직업은 ${d.interestJob}입니다.
+이 직업의 주요 업무는 ${work}입니다.
+저는 ${connection}이라는 점에서 이 직업이 더 궁금해졌습니다.
+앞으로 ${learn}을 더 알아보고 싶습니다.`;
+}
+function copyCareerTalk(){
+  const text=$('careerTalk').textContent;
+  if(text.startsWith('게임 보고서를')){toast('먼저 게임 보고서를 불러오세요.');return}
+  if(navigator.clipboard)navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));else fallbackCopy(text);
+  toast('30초 진로 이야기 발표문을 복사했어요!');
+}
+function completeFinal(){
+  if(!(state.reportData||{}).interestJob){toast('게임의 진로 탐색 보고서를 먼저 불러오세요.');return}
+  if(!val('personalConnection')||!val('nextAction')||!val('skillImportance')||!val('mbtiReflectionChoice')||!val('mbtiReflection')){
+    toast('나의 진로 탐색 보고서를 모두 작성해주세요.');return
+  }
+  $('completeBox').classList.add('show');$('recordExportBox').style.display='';state.completed=true;save();prepareCareerRecordDownload();unlock(10)
+}
+function copyPrompt(id,flag){const text=$(id).textContent;if(navigator.clipboard)navigator.clipboard.writeText(text).catch(()=>fallbackCopy(text));else fallbackCopy(text);state.flags=state.flags||{};state.flags[flag]=true;save();toast('프롬프트를 복사했어요!')}
+function fallbackCopy(text){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window.__tt);window.__tt=setTimeout(()=>t.classList.remove('show'),1700)}
+function updatePrompts(){const jobs=getCareer6(),title=val('gameTitle')||'[게임 제목]',theme=actualTheme()||'[게임 분위기]',qs=state.selectedQuestions.map(i=>questions[i]),sits=['sit1','sit2','sit3','sit4'].map(val);$('promptBase').textContent=`중학생 진로 탐색 수업에서 사용할 웹 기반 부루마블 게임을 만들어줘.\n\n게임 제목은 "${title}"이고, 전체 디자인은 "${theme}" 분위기로 만들어줘.\n\n게임판은 사각형 가장자리를 따라 총 24칸으로 구성해줘.\n- 시작 1칸\n- 직업탐험 6칸\n- 나를 알아보기 4칸\n- 직업 상황 해결 4칸\n- 역량 획득 3칸\n- 진로 찬스 3칸\n- 진로 위기 2칸\n- 직업 융합 1칸\n\n직업탐험 6칸에는 반드시 다음 직업을 하나씩 넣어줘.\n${jobs.map((j,i)=>`${i+1}. ${j}`).join('\n')||'[MY CAREER 6]'}\n\n다른 직업으로 바꾸거나 삭제하지 마.\n\n이번 단계에서는 아직 각 칸의 자세한 활동이나 점수 기능을 만들지 말고 다음 기능까지만 만들어줘.\n1. 24칸 게임판\n2. 큰 '주사위 굴리기' 버튼\n3. 1~6 무작위 주사위\n4. 나온 숫자만큼 말이 순서대로 이동\n5. 도착 칸을 눈에 띄게 표시\n6. 마지막 칸을 지나면 다시 시작 칸부터 이동\n7. 이동 중에는 주사위 버튼 잠금\n\n태블릿에서도 게임판과 글씨가 잘 보이게 해줘.\nHTML, CSS, JavaScript를 하나의 파일에 작성하고 Gemini Canvas에서 바로 실행할 수 있게 해줘.\n지금은 기본 게임이 제대로 움직이는 것이 가장 중요해. 화려한 추가 기능은 아직 넣지 마.`;$('promptBaseFix').textContent=`현재 만들고 있는 "${title}" 게임에서 문제가 발견됐어.\n\n문제:\n"${val('basicBug')||'[발견한 문제]'}"\n\n현재 잘 작동하고 있는 게임판과 다른 기능은 그대로 유지하면서 이 문제만 찾아서 수정해줘. 24칸 게임판, 주사위, 말 이동 기능이 사라지거나 변경되지 않게 해줘.`;$('promptSituation').textContent=`나는 중학생 진로 부루마블 게임을 만들고 있어.\n\n게임에 들어가는 직업은 다음 6개야.\n${jobs.map((j,i)=>`${i+1}. ${j}`).join('\n')||'[MY CAREER 6]'}\n\n이 직업과 관련된 '직업 상황 해결 미션'을 8개 제안해줘. 중학교 1학년 학생이 이해할 수 있고 약 30초 정도 생각해서 자기 해결 방법을 말하거나 입력할 수 있는 상황으로 만들어줘.\n\n예: "게임 기획자가 만든 게임을 사람들이 너무 어렵다고 합니다. 어떻게 바꾸겠습니까?"\n\n직업 이름과 상황을 짧고 쉽게 보여줘. 아직 게임이나 코드는 수정하지 마. 상황 아이디어만 제안해줘.`;$('promptContent').textContent=`지금 만들고 있는 "${title}" 기본 부루마블 게임에 진로 활동 기능을 추가해줘.\n\n중요: 현재 잘 작동하고 있는 24칸 게임판, 주사위, 말 이동, 도착 칸 표시 기능은 삭제하거나 변경하지 마.\n\n[1. 직업탐험 6칸]\n${jobs.join('\n')||'[MY CAREER 6]'}\n각 직업 칸에 도착하면 큰 팝업 카드에 직업 이름, 주로 하는 일, 일하는 장소, 필요한 능력이나 태도, 사람이나 사회에 주는 도움을 보여줘. '탐험 완료'를 누르면 경험 점수 2점.\n\n[2. 나를 알아보기 4칸]\n${qs.map((q,i)=>`${i+1}. ${q}`).join('\n')||'[선택한 질문 4개]'}\n학생이 짧게 답을 입력하고 '답변 완료'를 누르면 경험 점수 1점.\n\n[3. 직업 상황 해결 4칸]\n${sits.map((s,i)=>`${i+1}. ${s}`).join('\n')||'[상황 4개]'}\n30초 생각 타이머와 입력칸을 넣고, 해결 완료 시 문제해결 역량 카드 1장과 경험 점수 2점.\n\n[4. 역량 획득 3칸]\n의사소통, 협업, 창의성, 문제해결, 책임감, 디지털 활용 중 하나를 무작위로 획득.\n\n[5. 진로 찬스 3칸]\n경험 점수 +2 / 원하는 역량 카드 1장 / 2칸 앞으로 중 하나.\n\n[6. 진로 위기 2칸]\n예상하지 못한 변화가 생겼을 때 다른 방법이나 대안을 짧게 생각하고 입력하면 계속 진행.\n\n[7. 직업 융합 1칸]\n'내가 좋아하는 것 + 직업' 또는 '직업 + 직업'을 합쳐 새로운 직업을 상상해서 입력. 예: 축구 + 데이터 분석 → 스포츠 데이터 전문가. 완료하면 경험 점수 3점.\n\n모든 활동은 태블릿에서 보기 쉬운 큰 팝업으로 만들어줘. 기존 기능은 유지하고 새로운 활동 기능만 추가해줘.`;$('promptMultiplayer').textContent=`현재 "${title}" 진로 부루마블의 기존 기능은 모두 잘 작동하고 있어.\n\n기존 기능은 그대로 유지하면서 1명 또는 2명이 플레이할 수 있게 해줘.\n- 참가 인원: 1명 또는 2명\n- 참가자별 별명 입력\n- 실제 이름 대신 별명을 사용하라는 안내\n- 체험 모드: 각 플레이어 6턴\n- 게임 모드: 각 플레이어 10턴\n- 플레이어마다 다른 색의 말\n- 현재 차례를 크게 표시\n- 활동 종료 후 다음 사람 차례\n- 플레이어별 경험 점수, 역량 카드, 만난 직업을 따로 기록\n\n게임 종료 후 1등만 강조하지 말고 각 플레이어가 오늘 만난 직업과 획득한 역량을 확인하게 해줘. 현재까지 만든 게임판, 카드, 점수, 주사위, 말 이동 기능은 삭제하지 마.`;$('promptCareerReport').textContent=`현재 "${title}" 진로 부루마블 게임의 모든 기능이 잘 작동하고 있어.
+
+기존의
+- 24칸 게임판
+- 주사위와 말 이동
+- 1인/2인 플레이
+- 플레이어별 진로 경험 점수
+- 역량 카드
+- 만난 직업 기록
+- 직업탐험
+- 나를 알아보기
+- 직업 상황 해결
+- 진로 찬스와 위기
+- 직업 융합
+
+기능은 모두 그대로 유지해줘.
+
+이제 게임이 끝났을 때 각 플레이어가 자신의 활동을 돌아볼 수 있는
+'나만의 진로 탐색 보고서' 화면을 추가해줘.
+
+게임은 다음 경우에 종료되게 해줘.
+1. 선택한 턴 수를 모두 사용했을 때
+2. 화면의 '게임 종료' 버튼을 눌렀을 때
+
+게임이 종료되면 참가자별로 다음 내용을 보여줘.
+
+[1. 오늘의 게임 기록]
+- 획득한 진로 경험 점수
+- 획득한 역량 카드와 개수
+- 게임에서 실제로 만난 직업
+- 가장 많이 획득한 역량
+
+[2. 오늘의 탐험 칭호]
+가장 많이 획득한 역량을 참고하여 재미있는 '오늘의 탐험 칭호' 하나를 보여줘.
+
+예:
+- 창의성 → 창의적인 미래 설계자
+- 의사소통 → 따뜻한 소통 전문가
+- 협업 → 함께하는 협력가
+- 문제해결 → 끈기 있는 문제 해결사
+- 책임감 → 믿음직한 실행가
+- 디지털 활용 → 디지털 탐험 전문가
+
+역량 카드 수가 같다면 그중 하나를 선택해도 돼.
+
+칭호 아래에는 다음 안내를 작게 보여줘.
+"이 칭호는 오늘 게임에서 얻은 카드로 만든 재미있는 결과입니다.
+나의 성격이나 직업 적합성을 판단하는 결과는 아닙니다."
+
+점수가 가장 높은 사람만 승자로 표시하지 말아줘.
+각 플레이어가 자신의 탐험 결과를 돌아보는 것이 목적이야.
+
+[3. 내가 관심을 갖게 된 직업]
+게임에서 만난 직업을 버튼이나 목록으로 보여주고 그중 더 궁금해진 직업 하나를 선택하게 해줘.
+게임에서 만나지 못했지만 관심이 생긴 직업이 있다면 직접 입력할 수도 있게 해줘.
+
+선택한 직업이 게임의 직업 카드에 있는 직업이라면,
+그 직업의 '주로 하는 일'을 "~을 기획", "~를 돌봄", "~을 분석"처럼 짧은 구절로 함께 저장해줘.
+직접 입력한 직업이라면 학생이 '주로 하는 일'을 짧게 입력할 수 있게 해줘.
+
+[4. 왜 관심이 생겼나요?]
+다음 이유 중 하나를 선택하게 해줘.
+- 하는 일이 재미있어 보여서
+- 내가 좋아하는 것과 연결되어서
+- 필요한 능력이 흥미로워서
+- 사람이나 사회에 주는 도움이 마음에 들어서
+- 새롭게 알게 된 직업이라서
+- 직접 입력
+
+[5. 앞으로 무엇을 더 알아보고 싶나요?]
+다음 중 하나를 선택하게 해줘.
+- 실제로 어떤 일을 하는지
+- 어떤 과목과 관련 있는지
+- 어떤 전공이나 학과가 있는지
+- 어떤 능력이 필요한지
+- 하루 일과는 어떤지
+- 미래에 어떻게 달라질지
+- 직접 입력
+
+[6. 진로 탐색 보고서 복사]
+관심 직업, 이유, 더 알아보고 싶은 내용까지 작성하면
+'내 진로 탐색 보고서 복사' 버튼을 보여줘.
+
+버튼을 누르면 반드시 아래 형식과 항목명을 그대로 사용해 클립보드에 복사되게 해줘.
+
+나의 진로 탐색 보고서
+진로 경험 점수: [점수]
+게임에서 만난 직업: [직업 목록]
+획득한 역량 카드: [역량과 개수]
+가장 많이 획득한 역량: [역량]
+오늘의 탐험 칭호: [칭호]
+관심 직업: [직업]
+관심 직업 하는 일: [짧은 구절]
+관심이 생긴 이유: [이유]
+더 알아보고 싶은 것: [내용]
+
+태블릿에서 읽기 쉽도록 결과 화면을 카드 형태로 만들어줘.
+기존 게임 기능은 삭제하거나 변경하지 말고 게임 종료 화면과 보고서 기능만 추가해줘.`;
+
+$('promptReportFix').textContent=`현재 "${title}" 게임의 '나만의 진로 탐색 보고서' 기능을 테스트하다가 다음 문제를 발견했어.
+
+문제:
+"${val('reportBug')||'[발견한 문제]'}"
+
+게임판, 주사위, 말 이동, 진로 활동, 점수, 플레이어 기록 등 기존 기능은 그대로 유지하고
+진로 탐색 보고서에서 문제가 있는 부분만 수정해줘.
+
+특히 '내 진로 탐색 보고서 복사' 버튼의 복사 형식과 항목명은 바꾸지 마.`;$('promptGameFix').textContent=`현재 "${title}" 게임을 직접 테스트하다가 다음 문제를 발견했어.\n\n문제:\n"${val('gameBug')||'[발견한 문제]'}"\n\n지금까지 잘 작동하는 기능은 모두 그대로 유지해줘. 특히 게임판, 주사위, 말 이동, 직업탐험, 진로 질문, 상황 해결, 점수, 역량 카드, 플레이어별 기록 기능을 삭제하거나 초기화하지 말고 문제가 있는 부분만 수정해줘.`;let up;if(state.upgradeType==='special'){up=`현재 "${title}" 게임은 잘 작동하고 있어.\n\n기존 진로 찬스 3칸 중 1칸을 나만의 MY SPECIAL 칸으로 바꿔줘.\n\nMY SPECIAL 이름: "${actualSpecialName()||'[특별칸 이름]'}"\n규칙: "${actualSpecialRule()||'[특별칸 규칙]'}"\n\n나머지 23칸과 기존 게임 기능은 그대로 유지해줘. 전체 칸 수는 반드시 24칸을 유지하고, 진로 찬스는 2칸, MY SPECIAL은 1칸이 되게 해줘. 다른 기능은 삭제하거나 변경하지 마.`}else{up=`현재 "${title}" 게임은 잘 작동하고 있어.\n\n현재 상태:\n"${val('beforeChange')||'[현재 상태]'}"\n\n나는 이것을 다음과 같이 바꾸고 싶어.\n"${val('wantedChange')||'[바꾸고 싶은 내용]'}"\n\n기존에 잘 작동하는 기능은 모두 그대로 유지하면서 내가 요청한 부분만 수정해줘. 수정 때문에 다른 기능이 사라지거나 작동하지 않게 되지 않도록 확인해줘.`}$('promptUpgrade').textContent=up;$('promptBonus').textContent=`현재 "${title}" 게임은 완성되어 있고 모든 기능이 잘 작동하고 있어.\n\n나는 BONUS 기능으로 다음을 추가하고 싶어.\n"${state.bonusChoice||'[BONUS 기능]'}"\n\n이 기능을 중학교 1학년 학생이 재미있게 사용할 수 있도록 너무 복잡하지 않게 추가해줘. 현재 게임의 24칸 구성, 주사위, 말 이동, 진로 활동, 점수, 플레이어 기록, MY UPGRADE 기능은 모두 그대로 유지해줘.`}
+function renderCards(){$('futureCards').innerHTML='';futureJobs.forEach(([cat,name,desc])=>{const b=document.createElement('button');b.className='card-option'+(state.futureJob===name?' selected':'');b.innerHTML=`<strong>${cat} · ${name}</strong><small>${desc}</small>`;b.onclick=()=>selectFuture(name,b);$('futureCards').appendChild(b)});$('themeCards').innerHTML='';themes.forEach(([label,value])=>{const b=document.createElement('button');b.className='card-option'+(state.theme===value?' selected':'');b.innerHTML=`<strong>${label}</strong>`;b.onclick=()=>selectTheme(value,b);$('themeCards').appendChild(b)});$('customThemeWrap').style.display=state.theme==='custom'?'':'none';$('careerQuestions').innerHTML='';questions.forEach((q,i)=>{const lab=document.createElement('label');lab.className='choice-row';lab.innerHTML=`<input type="checkbox" id="q_${i}" ${state.selectedQuestions.includes(i)?'checked':''}><div>${q}</div>`;lab.querySelector('input').onchange=e=>toggleQuestion(i,e.target.checked);$('careerQuestions').appendChild(lab)});$('upgradeCards').innerHTML='';upgrades.forEach(([label,type])=>{const b=document.createElement('button');b.className='card-option'+(state.upgradeType===type?' selected':'');b.innerHTML=`<strong>${label}</strong>`;b.onclick=()=>selectUpgrade(type,b);$('upgradeCards').appendChild(b)});$('specialWrap').style.display=state.upgradeType==='special'?'':'none';$('specialCards').innerHTML='';specials.forEach(([name,desc,rule])=>{const b=document.createElement('button');b.className='card-option'+(state.specialName===name?' selected':'');b.innerHTML=`<strong>${name}</strong><small>${desc}</small>`;b.onclick=()=>selectSpecial(name,rule,b);$('specialCards').appendChild(b)});$('customSpecialWrap').style.display=state.specialRule==='custom'?'':'none';$('bonusCards').innerHTML='';bonus.forEach(([name,desc])=>{const b=document.createElement('button');b.className='card-option'+(state.bonusChoice===name?' selected':'');b.innerHTML=`<strong>${name}</strong><small>${desc}</small>`;b.onclick=()=>{state.bonusChoice=name;save();document.querySelectorAll('#bonusCards .card-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');updatePrompts()};$('bonusCards').appendChild(b)})}
+
+function escapeHtml(s){
+  return String(s ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+function nl2br(s){return escapeHtml(s).replace(/\n/g,'<br>')}
+function safeFileName(s){
+  return String(s||'MY_CAREER_BOARD')
+    .replace(/[\\/:*?"<>|]/g,'_')
+    .replace(/\s+/g,'_')
+    .slice(0,60);
+}
+let careerRecordBlobUrl=null;
+
+function buildCareerRecordHtml(){
+  const d=state.reportData||{};
+  if(!state.completed || !d.interestJob) return null;
+
+  const jobs=getCareer6();
+  const selectedQs=(state.selectedQuestions||[]).map(i=>questions[i]).filter(Boolean);
+  const situations=['sit1','sit2','sit3','sit4'].map(id=>val(id)).filter(Boolean);
+  const gameTitle=val('gameTitle')||'MY CAREER BOARD';
+  const theme=actualTheme()||'-';
+  const mbti=state.mbti||'-';
+  const beforeJob=state.firstFavoriteJob||'-';
+  const afterJob=d.interestJob||'-';
+  const upgradeLabel={
+    special:'MY SPECIAL 칸',
+    content:'내용 바꾸기',
+    game:'게임 규칙 바꾸기',
+    design:'디자인 바꾸기'
+  }[state.upgradeType]||'-';
+
+  const talk=$('careerTalk')?.textContent||'';
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(gameTitle)} | 진로탐험 기록</title>
+<style>
+:root{--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;--soft:#f8fafc;--accent:#4f46e5;--accent2:#eef2ff;--good:#ecfdf5}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;line-height:1.65}
+main{width:min(900px,calc(100% - 28px));margin:28px auto 60px}
+.hero,.section{background:white;border:1px solid var(--line);border-radius:20px;padding:24px;margin-bottom:14px}
+.hero{background:linear-gradient(135deg,#eef2ff,#ecfdf5)}
+h1{font-size:clamp(30px,6vw,48px);letter-spacing:-.04em;margin:0 0 8px}
+h2{font-size:24px;margin:0 0 14px;letter-spacing:-.03em}
+h3{font-size:17px;margin:16px 0 6px}
+p{margin:6px 0}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.item{background:var(--soft);border-radius:14px;padding:13px 15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{background:var(--accent2);color:#3730a3;border-radius:999px;padding:7px 11px;font-weight:800;font-size:13px}
+.quote{background:#111827;color:white;border-radius:16px;padding:18px;white-space:pre-line}
+.highlight{background:var(--good);border-radius:14px;padding:14px}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}.hero,.section{padding:18px}}
+@media print{body{background:white}main{width:100%;margin:0}.hero,.section{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="muted">MY CAREER BOARD · 진로탐험 기록</div>
+    <h1>${escapeHtml(gameTitle)}</h1>
+    <p><b>MBTI:</b> ${escapeHtml(mbti)} &nbsp; · &nbsp; <b>게임 테마:</b> ${escapeHtml(theme)}</p>
+    <p class="muted">MBTI와 게임 결과는 진로나 직업 적합성을 판정하는 결과가 아니라, 오늘의 탐색을 돌아보기 위한 기록입니다.</p>
+  </section>
+
+  <section class="section">
+    <h2>🎴 MY CAREER 6</h2>
+    <div class="chips">${jobs.map(j=>`<span class="chip">${escapeHtml(j)}</span>`).join('')}</div>
+    <div class="grid" style="margin-top:14px">
+      <div class="item"><b>게임 전 가장 궁금했던 직업</b><br>${escapeHtml(beforeJob)}</div>
+      <div class="item"><b>게임 후 더 궁금해진 직업</b><br>${escapeHtml(afterJob)}</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>🧩 내가 고른 진로 콘텐츠</h2>
+    <h3>직업 상황 해결 카드</h3>
+    ${situations.length?`<ol>${situations.map(s=>`<li>${escapeHtml(s)}</li>`).join('')}</ol>`:'<p class="muted">기록 없음</p>'}
+    <h3>나를 알아보기 질문</h3>
+    ${selectedQs.length?`<ol>${selectedQs.map(q=>`<li>${escapeHtml(q)}</li>`).join('')}</ol>`:'<p class="muted">기록 없음</p>'}
+    <div class="grid">
+      <div class="item"><b>AI가 제안한 원래 상황</b><br>${nl2br(val('originalSituation')||'-')}</div>
+      <div class="item"><b>내가 바꾼 상황</b><br>${nl2br(val('editedSituation')||'-')}</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>✨ MY UPGRADE</h2>
+    <p><b>선택한 업그레이드:</b> ${escapeHtml(upgradeLabel)}</p>
+    ${state.upgradeType==='special'?`<p><b>MY SPECIAL:</b> ${escapeHtml(actualSpecialName())} — ${escapeHtml(actualSpecialRule())}</p>`:''}
+    <div class="grid">
+      <div class="item"><b>수정 전</b><br>${nl2br(val('beforeChange')||'-')}</div>
+      <div class="item"><b>바꾸고 싶었던 점</b><br>${nl2br(val('wantedChange')||'-')}</div>
+    </div>
+    <div class="highlight" style="margin-top:10px"><b>수정 후</b><br>${nl2br(val('afterChange')||'-')}</div>
+  </section>
+
+  <section class="section">
+    <h2>👥 친구 플레이 피드백</h2>
+    <div class="grid">
+      <div class="item"><b>가장 재미있었던 칸</b><br>${escapeHtml(val('friendFun')||'-')}</div>
+      <div class="item"><b>좋았던 점</b><br>${escapeHtml(val('friendGood')||'-')}</div>
+      <div class="item"><b>한 가지 더 바꾼다면</b><br>${escapeHtml(val('friendSuggestion')||'-')}</div>
+      <div class="item"><b>MY UPGRADE 확인</b><br>${escapeHtml(val('upgradeSeen')||'-')}</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>📊 오늘의 게임 기록</h2>
+    <div class="grid">
+      <div class="item"><b>진로 경험 점수</b><br>${escapeHtml(d.score||'-')}</div>
+      <div class="item"><b>가장 많이 획득한 역량</b><br>${escapeHtml(d.topSkill||'-')}</div>
+      <div class="item"><b>오늘의 탐험 칭호</b><br>${escapeHtml(d.title||'-')}</div>
+      <div class="item"><b>게임에서 만난 직업</b><br>${escapeHtml(d.metJobs||'-')}</div>
+    </div>
+    ${d.skillCards?`<p><b>획득한 역량 카드:</b> ${escapeHtml(d.skillCards)}</p>`:''}
+  </section>
+
+  <section class="section">
+    <h2>❤️ 내가 더 궁금해진 직업</h2>
+    <p><b>관심 직업:</b> ${escapeHtml(d.interestJob||'-')}</p>
+    ${d.jobWork?`<p><b>주요 업무:</b> ${escapeHtml(d.jobWork)}</p>`:''}
+    <p><b>관심이 생긴 이유:</b> ${escapeHtml(d.reason||'-')}</p>
+    <p><b>나의 관심·경험과의 연결:</b> ${nl2br(val('personalConnection')||'-')}</p>
+  </section>
+
+  <section class="section">
+    <h2>🔭 다음 탐색</h2>
+    <p><b>더 알아보고 싶은 것:</b> ${escapeHtml(d.learnMore||'-')}</p>
+    <p><b>다음에 찾아볼 방법:</b> ${escapeHtml(val('nextAction')||'-')}</p>
+    <p><b>${escapeHtml(d.topSkill||'이 역량')}의 중요성:</b> ${escapeHtml(val('skillImportance')||'-')}</p>
+    ${val('skillAction')?`<p><b>역량을 더 길러볼 곳:</b> ${escapeHtml(val('skillAction'))}</p>`:''}
+  </section>
+
+  <section class="section">
+    <h2>🧭 MBTI에 대한 나의 생각</h2>
+    <p><b>${escapeHtml(val('mbtiReflectionChoice')||'-')}</b></p>
+    <p>${nl2br(val('mbtiReflection')||'-')}</p>
+  </section>
+
+  <section class="section">
+    <h2>🎤 나의 30초 진로 이야기</h2>
+    <div class="quote">${escapeHtml(talk)}</div>
+  </section>
+
+  <footer>이 파일은 MY CAREER BOARD 활동지에서 만든 개인 진로탐험 기록입니다.</footer>
+</main>
+</body>
+</html>`;
+}
+
+function prepareCareerRecordDownload(){
+  const link=$('careerRecordDownloadLink');
+  if(!link) return;
+  const reportHtml=buildCareerRecordHtml();
+  if(!reportHtml){
+    link.href='#';
+    link.removeAttribute('download');
+    return;
+  }
+
+  if(careerRecordBlobUrl){
+    try{URL.revokeObjectURL(careerRecordBlobUrl)}catch(e){}
+  }
+
+  const blob=new Blob([reportHtml],{type:'text/html;charset=utf-8'});
+  careerRecordBlobUrl=URL.createObjectURL(blob);
+
+  const gameTitle=val('gameTitle')||'MY_CAREER_BOARD';
+  const mbti=state.mbti||'MBTI';
+  link.href=careerRecordBlobUrl;
+  link.download=`진로탐험기록_${safeFileName(mbti)}_${safeFileName(gameTitle)}.html`;
+}
+
+function ensureCareerRecordLink(event){
+  try{
+    prepareCareerRecordDownload();
+    const link=$('careerRecordDownloadLink');
+    const href=link ? link.getAttribute('href') : '';
+    if(!href || href==='#'){
+      if(event) event.preventDefault();
+      toast('저장 파일을 준비하지 못했어요. FINAL 보고서를 다시 확인해주세요.');
+      return false;
+    }
+    return true;
+  }catch(err){
+    console.error(err);
+    if(event) event.preventDefault();
+    toast('저장 파일 생성 중 오류가 생겼어요.');
+    return false;
+  }
+}
+
+function openCareerRecordPreview(){
+  const reportHtml=buildCareerRecordHtml();
+  if(!reportHtml){
+    toast('FINAL을 완료한 뒤 미리보기를 열 수 있어요.');
+    return;
+  }
+  const blob=new Blob([reportHtml],{type:'text/html;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const win=window.open(url,'_blank');
+  if(!win){
+    toast('새 창이 차단되었어요. 브라우저에서 팝업을 허용한 뒤 다시 시도해주세요.');
+  }
+  setTimeout(()=>{try{URL.revokeObjectURL(url)}catch(e){}},60000);
+}
+
+function renderAll(){renderUnlocks();renderProgress();renderCards();renderMbti();syncBaseBug();syncGameBug();$('upgradeSeenMsg').style.display=val('upgradeSeen')==='잘 모르겠어요'?'':'none';if(state.completed){$('completeBox').classList.add('show');$('recordExportBox').style.display='';}renderFinalReport();updatePrompts();prepareCareerRecordDownload()}
+document.addEventListener('input',e=>{if(e.target.matches('[data-save]')){save();renderCareer6();syncBaseBug();syncGameBug();renderFinalReport();updatePrompts();prepareCareerRecordDownload()}});document.addEventListener('change',e=>{if(e.target.matches('[data-save]')){save();renderCareer6();syncBaseBug();syncGameBug();$('upgradeSeenMsg').style.display=val('upgradeSeen')==='잘 모르겠어요'?'':'none';renderFinalReport();updatePrompts();prepareCareerRecordDownload()}});window.addEventListener('DOMContentLoaded',load);
+</script>
+</body>
+</html>
